@@ -1,0 +1,147 @@
+@import './base.css';
+
+/* Global overflow control */
+* { box-sizing: border-box; }
+html, body, #app {
+  width: 100vw !important;
+  max-width: none !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  box-sizing: border-box !important;
+  min-height: 100vh !important;
+}
+
+.home-root {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #app {
+    padding: 1rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .container, .page-container {
+    padding: 1rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .grid, .flex-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    max-width: 100%;
+  }
+  
+  .card, .info-card {
+    margin-bottom: 1rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .btn, .button {
+    width: 100%;
+    margin-bottom: 0.5rem;
+    max-width: 100%;
+  }
+  
+  .search-input, .form-input {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .map-container {
+    height: 300px;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .legend {
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 100%;
+  }
+  
+  .legend-item {
+    font-size: 0.8rem;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  #app {
+    padding: 0.5rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .container, .page-container {
+    padding: 0.5rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.3rem; }
+  h3 { font-size: 1.1rem; }
+  
+  .card, .info-card {
+    padding: 1rem;
+    max-width: 100%;
+    width: 100%;
+  }
+  
+  .btn, .button {
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+    max-width: 100%;
+    width: 100%;
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 0 2rem;
+  }
+}
+
+/* Ana sayfa için özel düzenlemeler */
+.home-root {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+  overflow-x: hidden !important;
+}
