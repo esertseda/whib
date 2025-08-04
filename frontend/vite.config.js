@@ -27,14 +27,6 @@ export default defineConfig({
       'deep-equal': 'fast-deep-equal',
     },
   },
-  server: {
-    proxy: {
-      '/api': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-      },
-    },
-  },
   build: {
     chunkSizeWarningLimit: 1000, // 1MB limit, isteğe göre artırabilirsin
   },
