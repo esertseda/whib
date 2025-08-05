@@ -6,4 +6,4 @@ router.post('/image', upload.single('image'), (req, res) => {
   res.json({ imageUrl: req.file.path });
 });
 
-module.exports = router;
+export default router;

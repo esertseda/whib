@@ -33,7 +33,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/whib';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
-const uploadRoutes = require('./routes/upload');
+import uploadRoutes from './routes/upload.js';
 
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
