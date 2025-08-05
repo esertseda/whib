@@ -1,7 +1,7 @@
 import express from 'express';
-const express = require('express');
+import upload from '../config/cloudinary.js'; // .js uzantısını ESM'de eklemek şart
+
 const router = express.Router();
-const upload = require('../config/cloudinary');
 
 router.post('/image', upload.single('image'), (req, res) => {
   res.json({ imageUrl: req.file.path });
