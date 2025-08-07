@@ -803,6 +803,98 @@ async function exportAsPDF() {
       </div>
     `;
 
+    // Route Optimization Section (if available)
+    if (routeResults.value && routeResults.value.success) {
+      pdfContent += `
+        <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
+          <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Route Optimization Results</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">📏 Total Distance</div>
+              <div style="font-size: 16px;">${routeResults.value.distance} km</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">⏱️ Estimated Time</div>
+              <div style="font-size: 16px;">${routeResults.value.duration} minutes</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">📍 Number of Stops</div>
+              <div style="font-size: 16px;">${routeResults.value.stops} places</div>
+            </div>
+            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">🚗 Transport Type</div>
+              <div style="font-size: 16px;">${getTransportType(routeResults.value.profile)}</div>
+            </div>
+          </div>
+          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+            <h4 style="font-size: 16px; margin: 0 0 10px 0; font-family: 'Arial', 'Helvetica', sans-serif;">Optimized Route Order:</h4>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+      `;
+
+      routeResults.value.optimizedPlaces.forEach((place, index) => {
+        pdfContent += `
+          <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+            <span style="background: white; color: #667eea; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${index + 1}</span>
+            <span style="font-weight: bold; font-size: 13px;">${place.name}</span>
+            <span style="font-size: 11px; opacity: 0.8;">${place.category}</span>
+          </div>
+        `;
+      });
+
+      pdfContent += `
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Map Image Section
+    let mapImageData = null;
+    try {
+      const mapElement = document.querySelector('#map');
+      if (mapElement && mapElement.offsetWidth > 0) {
+        // Capture map as image
+        const canvas = await html2canvas(mapElement, {
+          scale: 1,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          width: mapElement.offsetWidth,
+          height: mapElement.offsetHeight
+        });
+        
+        mapImageData = canvas.toDataURL('image/png');
+        
+        pdfContent += `
+          <div style="margin-bottom: 30px;">
+            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Map View</h3>
+            <div style="text-align: center;">
+              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" alt="Map View" />
+            </div>
+          </div>
+        `;
+      } else {
+        pdfContent += `
+          <div style="margin-bottom: 30px;">
+            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Map View</h3>
+            <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 10px; border: 2px dashed #e0e0e0;">
+              <p style="font-size: 14px; color: #666; margin: 0;">Map not available for capture</p>
+            </div>
+          </div>
+        `;
+      }
+    } catch (mapErr) {
+      console.log('Map capture not available:', mapErr);
+      pdfContent += `
+        <div style="margin-bottom: 30px;">
+          <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Map View</h3>
+          <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 10px; border: 2px dashed #e0e0e0;">
+            <p style="font-size: 14px; color: #666; margin: 0;">Map capture failed</p>
+          </div>
+        </div>
+      `;
+    }
+
     // Kategoriler ve isimleri
     const categories = ['restaurant', 'cafe', 'bar', 'tourist', 'museum', 'shopping', 'other'];
     const categoryNames = {
