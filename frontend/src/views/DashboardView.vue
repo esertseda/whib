@@ -187,7 +187,9 @@ function getPhotoUrl(photoUrl) {
     return photoUrl;
   }
   // If it's a relative path, add the backend URL
-  return `http://localhost:5000${photoUrl}`;
+  const isProduction = import.meta.env.PROD;
+  const baseUrl = import.meta.env.VITE_API_URL || (isProduction ? 'https://whib.onrender.com' : 'http://localhost:5000');
+  return `${baseUrl}${photoUrl}`;
 }
 </script>
 
