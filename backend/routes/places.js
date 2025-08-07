@@ -117,4 +117,31 @@ router.delete('/:id', auth, async (req, res) => {
   }
 });
 
+// Temporary endpoint to fix existing photo URLs
+router.get('/fix-photos', auth, async (req, res) => {
+  try {
+    const places = await Place.find({ userId: req.userId, photoUrl: { $exists: true, $ne: '' } });
+    let fixedCount = 0;
+    
+    for (const place of places) {
+      if (place.photoUrl && place.photoUrl.startsWith('/uploads/')) {
+        // Convert local path to production URL
+        const newPhotoUrl = `https://whib.onrender.com${place.photoUrl}`;
+        await Place.updateOne(
+          { _id: place._id },
+          { $set: { photoUrl: newPhotoUrl } }
+        );
+        fixedCount++;
+      }
+    }
+    
+    res.json({ 
+      message: `Fixed ${fixedCount} photo URLs`,
+      fixedCount 
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router; 

@@ -30,7 +30,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Note: Static file serving removed - now using Cloudinary for photo storage
+// Static folder for uploads (temporary until Cloudinary is configured)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+app.use('/uploads', express.static(uploadsDir));
 
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/whib';
