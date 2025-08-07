@@ -2,14 +2,12 @@ import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
 
-import fs from 'fs';
-
-
 import express from 'express';
 import mongoose from 'mongoose';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cors from 'cors';
+import fs from 'fs';
 import authRoutes from './routes/auth.js';
 import placesRoutes from './routes/places.js';
 import statsRoutes from './routes/stats.js';
@@ -47,6 +45,8 @@ app.use('/uploads', express.static(uploadsDir));
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/whib';
 const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-this-in-production';
+
+// Import upload routes
 import uploadRoutes from './routes/upload.js';
 
 mongoose.connect(MONGODB_URI, {
