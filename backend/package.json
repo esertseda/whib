@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
+    "render-start": "node server.js",
     "fix-photos": "node fixPhotoUrls.js",
     "migrate-cloudinary": "node migrateToCloudinary.js"
   },
