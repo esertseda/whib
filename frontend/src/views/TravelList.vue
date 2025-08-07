@@ -787,30 +787,32 @@ async function exportAsPDF() {
     tempContainer.style.cssText = `
       width: 800px;
       padding: 20px;
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', 'Helvetica', sans-serif;
       color: #333;
       background: white;
+      font-size: 12px;
+      line-height: 1.4;
     `;
 
     // Başlık
     let pdfContent = `
       <div style="text-align: center; margin-bottom: 30px;">
-        <h1 style="color: #388e7d; font-size: 28px; margin: 0 0 10px 0;">${city.name}, ${city.country}</h1>
-        <h2 style="color: #666; font-size: 20px; margin: 0 0 20px 0;">Travel List</h2>
-        <p style="color: #999; font-size: 14px; margin: 0;">Generated on: ${new Date().toLocaleDateString()}</p>
+        <h1 style="color: #388e7d; font-size: 24px; margin: 0 0 10px 0; font-family: 'Arial', 'Helvetica', sans-serif;">${city.name}, ${city.country}</h1>
+        <h2 style="color: #666; font-size: 18px; margin: 0 0 20px 0; font-family: 'Arial', 'Helvetica', sans-serif;">Travel List</h2>
+        <p style="color: #999; font-size: 12px; margin: 0; font-family: 'Arial', 'Helvetica', sans-serif;">Generated on: ${new Date().toLocaleDateString()}</p>
       </div>
     `;
 
     // Kategoriler ve isimleri
     const categories = ['restaurant', 'cafe', 'bar', 'tourist', 'museum', 'shopping', 'other'];
     const categoryNames = {
-      restaurant: '🍽️ Restoranlar',
-      cafe: '☕ Kafeler',
-      bar: '🍸 Barlar',
-      tourist: '🏛️ Turistik Yerler',
-      museum: '🏛️ Müzeler',
-      shopping: '🛍️ Alışveriş',
-      other: '🏷️ Diğer Yerler'
+      restaurant: 'Restoranlar',
+      cafe: 'Kafeler',
+      bar: 'Barlar',
+      tourist: 'Turistik Yerler',
+      museum: 'Müzeler',
+      shopping: 'Alışveriş',
+      other: 'Diğer Yerler'
     };
 
     // Burada groupedPlaces Vue ref/computed olduğundan .value kullanıyoruz
@@ -823,19 +825,25 @@ async function exportAsPDF() {
         totalPlaces += places.length;
         pdfContent += `
           <div style="margin-bottom: 25px;">
-            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 10px 0; border-bottom: 2px solid #e0f2f1; padding-bottom: 5px;">
+            <h3 style="color: #388e7d; font-size: 16px; margin: 0 0 10px 0; border-bottom: 2px solid #e0f2f1; padding-bottom: 5px; font-family: 'Arial', 'Helvetica', sans-serif;">
               ${categoryNames[category]} (${places.length})
             </h3>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         `;
 
         places.forEach(place => {
+          // Adres bilgisini temizle (gereksiz prefix'leri kaldır)
+          let cleanAddress = place.address || '';
+          if (cleanAddress.startsWith('Ø=')) {
+            cleanAddress = cleanAddress.substring(2);
+          }
+          
           pdfContent += `
-            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 4px solid #388e7d;">
-              <div style="font-weight: bold; font-size: 14px; margin-bottom: 5px;">${place.name}</div>
-              ${place.address ? `<div style="font-size: 12px; color: #666; margin-bottom: 3px;">📍 ${place.address}</div>` : ''}
-              ${place.description ? `<div style="font-size: 12px; color: #888; margin-bottom: 3px;">${place.description}</div>` : ''}
-              ${place.rating ? `<div style="font-size: 12px; color: #f59e42;">⭐ ${place.rating}</div>` : ''}
+            <div style="background: #f8fafc; padding: 10px; border-radius: 8px; border-left: 4px solid #388e7d; font-family: 'Arial', 'Helvetica', sans-serif;">
+              <div style="font-weight: bold; font-size: 13px; margin-bottom: 5px; word-wrap: break-word;">${place.name}</div>
+              ${cleanAddress ? `<div style="font-size: 11px; color: #666; margin-bottom: 3px; word-wrap: break-word;">${cleanAddress}</div>` : ''}
+              ${place.description ? `<div style="font-size: 11px; color: #888; margin-bottom: 3px; word-wrap: break-word;">${place.description}</div>` : ''}
+              ${place.rating ? `<div style="font-size: 11px; color: #f59e42;">Rating: ${place.rating}</div>` : ''}
             </div>
           `;
         });
@@ -886,7 +894,12 @@ async function exportAsPDF() {
       },
       margin: [40, 40, 40, 40],
       autoPaging: 'text',
-      html2canvas: { scale: 0.8, useCORS: true }
+      html2canvas: { 
+        scale: 0.8, 
+        useCORS: true,
+        letterRendering: true,
+        allowTaint: true
+      }
     });
 
   } catch (err) {
