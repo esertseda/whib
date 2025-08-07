@@ -1073,31 +1073,77 @@ async function exportAsPDF() {
       }
     });
 
-    if (totalPlaces > 0) {
+
+
+    // Map Image Section - Before route optimization
+    let mapImageData = null;
+    try {
+      const mapElement = document.querySelector('#map');
+      if (mapElement && mapElement.offsetWidth > 0) {
+        // Wait longer to ensure map and route are fully rendered
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Force map to invalidate and redraw to ensure route is visible
+        const mapInstance = mapElement._leaflet_map;
+        if (mapInstance) {
+          mapInstance.invalidateSize();
+          mapInstance.fitBounds(mapInstance.getBounds());
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        // Capture map as image with higher quality and better settings
+        const canvas = await html2canvas(mapElement, {
+          scale: 1.5, // Balanced scale for quality and performance
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#ffffff',
+          width: mapElement.offsetWidth,
+          height: mapElement.offsetHeight,
+          logging: false,
+          removeContainer: false,
+          foreignObjectRendering: false,
+          imageTimeout: 5000
+        });
+        
+        mapImageData = canvas.toDataURL('image/png', 0.95);
+        
+        pdfContent += `
+          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
+              <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
+            </div>
+            <div style="text-align: center; background: white; border-radius: 6px; padding: 15px;">
+              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #E5E7EB;" alt="Map View" />
+            </div>
+          </div>
+        `;
+      } else {
+        pdfContent += `
+          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
+              <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
+            </div>
+            <div style="text-align: center; padding: 25px; background: white; border-radius: 6px; border: 2px dashed #6366F1; color: #111827;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Map not available for capture</div>
+              <div style="font-size: 11px; opacity: 0.8;">The map view could not be captured at this time</div>
+            </div>
+          </div>
+        `;
+      }
+    } catch (mapErr) {
+      console.log('Map capture not available:', mapErr);
       pdfContent += `
-        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white; page-break-inside: avoid;">
-          <div style="font-size: 20px; font-weight: bold; margin: 0 0 12px 0;">Travel Summary</div>
-          <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto 15px auto; border-radius: 2px;"></div>
-          <table style="width: 100%; margin-bottom: 15px; border-collapse: collapse;">
-            <tr>
-              <td style="background: white; padding: 12px; border-radius: 6px; width: 50%; text-align: center; color: #111827;">
-                <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px; color: #6366F1;">${totalPlaces}</div>
-                <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Total Places</div>
-              </td>
-              <td style="background: white; padding: 12px; border-radius: 6px; width: 50%; text-align: center; color: #111827;">
-                <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px; color: #6366F1;">${categories.filter(cat => (grouped[cat]?.length || 0) > 0).length}</div>
-                <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Categories</div>
-              </td>
-            </tr>
-          </table>
-          <div style="font-size: 14px; font-weight: bold; opacity: 0.9;">Ready for your adventure!</div>
-        </div>
-      `;
-    } else {
-      pdfContent += `
-        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white; page-break-inside: avoid;">
-          <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">No places selected yet</div>
-          <div style="font-size: 12px; opacity: 0.9;">Start adding places to create your perfect travel guide!</div>
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
+            <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
+          </div>
+          <div style="text-align: center; padding: 25px; background: white; border-radius: 6px; border: 2px dashed #6366F1; color: #111827;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Map capture failed</div>
+            <div style="font-size: 11px; opacity: 0.8;">There was an error capturing the map view</div>
+          </div>
         </div>
       `;
     }
@@ -1190,78 +1236,7 @@ async function exportAsPDF() {
       </div>
     `;
 
-    // Map Image Section - Moved to bottom with modern design
-    let mapImageData = null;
-    try {
-      const mapElement = document.querySelector('#map');
-      if (mapElement && mapElement.offsetWidth > 0) {
-        // Wait longer to ensure map and route are fully rendered
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // Force map to invalidate and redraw to ensure route is visible
-        const mapInstance = mapElement._leaflet_map;
-        if (mapInstance) {
-          mapInstance.invalidateSize();
-          mapInstance.fitBounds(mapInstance.getBounds());
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-        
-        // Capture map as image with higher quality and better settings
-        const canvas = await html2canvas(mapElement, {
-          scale: 1.5, // Balanced scale for quality and performance
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: '#ffffff',
-          width: mapElement.offsetWidth,
-          height: mapElement.offsetHeight,
-          logging: false,
-          removeContainer: false,
-          foreignObjectRendering: false,
-          imageTimeout: 5000
-        });
-        
-        mapImageData = canvas.toDataURL('image/png', 0.95);
-        
-        pdfContent += `
-          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
-              <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
-            </div>
-            <div style="text-align: center; background: white; border-radius: 6px; padding: 15px;">
-              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #E5E7EB;" alt="Map View" />
-            </div>
-          </div>
-        `;
-      } else {
-        pdfContent += `
-          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
-              <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
-            </div>
-            <div style="text-align: center; padding: 25px; background: white; border-radius: 6px; border: 2px dashed #6366F1; color: #111827;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Map not available for capture</div>
-              <div style="font-size: 11px; opacity: 0.8;">The map view could not be captured at this time</div>
-            </div>
-          </div>
-        `;
-      }
-    } catch (mapErr) {
-      console.log('Map capture not available:', mapErr);
-      pdfContent += `
-        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
-          <div style="text-align: center; margin-bottom: 20px;">
-            <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
-            <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
-          </div>
-          <div style="text-align: center; padding: 25px; background: white; border-radius: 6px; border: 2px dashed #6366F1; color: #111827;">
-            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Map capture failed</div>
-            <div style="font-size: 11px; opacity: 0.8;">There was an error capturing the map view</div>
-          </div>
-        </div>
-      `;
-    }
+
 
     // Basit footer tasarımı
     pdfContent += `
