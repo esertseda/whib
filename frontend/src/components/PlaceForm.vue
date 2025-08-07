@@ -329,18 +329,48 @@ function removePhoto() {
   if (fileInput) fileInput.value = '';
 }
 
-function handleSubmit() {
+async function handleSubmit() {
   const fd = new FormData();
-  fd.append('title', form.value.title);
-  fd.append('description', form.value.description);
-  fd.append('country', form.value.country);
-  fd.append('city', form.value.city);
-  fd.append('lat', form.value.lat);
-  fd.append('lng', form.value.lng);
-  fd.append('visitedAt', form.value.visitedAt);
-  if (form.value.photo) fd.append('photo', form.value.photo);
-  emit('submit', fd);
+
+  // Eğer yeni bir fotoğraf seçildiyse önce onu Cloudinary'ye yükle
+  let uploadedImageUrl = form.value.photoUrl;
+
+  if (form.value.photo) {
+    const imageFormData = new FormData();
+    imageFormData.append('image', form.value.photo);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/upload/image', imageFormData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      uploadedImageUrl = response.data.imageUrl;
+    } catch (error) {
+      console.error('Image upload failed:', error);
+      showNotification('Image upload failed!', 'warning');
+      return;
+    }
+  }
+
+  // Ana form verilerini oluştur
+  const placeData = {
+    title: form.value.title,
+    description: form.value.description,
+    country: form.value.country,
+    city: form.value.city,
+    coordinates: {
+      lat: parseFloat(form.value.lat),
+      lng: parseFloat(form.value.lng),
+    },
+    visitedAt: form.value.visitedAt,
+    photoUrl: uploadedImageUrl, // ← Cloudinary URL burada
+  };
+
+  emit('submit', placeData);
 }
+
 
 // Allow parent to set coordinates
 function setCoordinates(lat, lng) {

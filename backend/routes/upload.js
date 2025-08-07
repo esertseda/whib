@@ -1,6 +1,8 @@
 import express from 'express';
 import upload from '../config/cloudinary.js'; // .js uzantısını ESM'de eklemek şart
 // Cloudinary'den gelen URL'yi döndürüyoruz
+const router = express.Router();
+
 router.post('/image', upload.single('image'), (req, res) => {
   try {
     // req.file.path, Cloudinary’deki gerçek görsel URL'sidir
