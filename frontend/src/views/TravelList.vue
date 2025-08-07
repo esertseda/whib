@@ -807,22 +807,22 @@ async function exportAsPDF() {
     if (routeResults.value && routeResults.value.success) {
       pdfContent += `
         <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-          <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Route Optimization Results</h3>
+          <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Route Optimization Results</h3>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
             <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">📏 Total Distance</div>
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Total Distance</div>
               <div style="font-size: 16px;">${routeResults.value.distance} km</div>
             </div>
             <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">⏱️ Estimated Time</div>
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Estimated Time</div>
               <div style="font-size: 16px;">${routeResults.value.duration} minutes</div>
             </div>
             <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">📍 Number of Stops</div>
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Number of Stops</div>
               <div style="font-size: 16px;">${routeResults.value.stops} places</div>
             </div>
             <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">🚗 Transport Type</div>
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Transport Type</div>
               <div style="font-size: 16px;">${getTransportType(routeResults.value.profile)}</div>
             </div>
           </div>
@@ -867,7 +867,7 @@ async function exportAsPDF() {
         
         pdfContent += `
           <div style="margin-bottom: 30px;">
-            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Map View</h3>
+            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Map View</h3>
             <div style="text-align: center;">
               <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);" alt="Map View" />
             </div>
@@ -876,7 +876,7 @@ async function exportAsPDF() {
       } else {
         pdfContent += `
           <div style="margin-bottom: 30px;">
-            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Map View</h3>
+            <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Map View</h3>
             <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 10px; border: 2px dashed #e0e0e0;">
               <p style="font-size: 14px; color: #666; margin: 0;">Map not available for capture</p>
             </div>
@@ -887,7 +887,7 @@ async function exportAsPDF() {
       console.log('Map capture not available:', mapErr);
       pdfContent += `
         <div style="margin-bottom: 30px;">
-          <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">🗺️ Map View</h3>
+          <h3 style="color: #388e7d; font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Map View</h3>
           <div style="text-align: center; padding: 20px; background: #f8fafc; border-radius: 10px; border: 2px dashed #e0e0e0;">
             <p style="font-size: 14px; color: #666; margin: 0;">Map capture failed</p>
           </div>
