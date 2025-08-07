@@ -543,6 +543,30 @@ html, body {
   .app-title {
     font-size: 1.1rem;
   }
+  
+  .welcome-title {
+    font-size: 1.8rem;
+  }
+  
+  .welcome-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+  
+  .hero-content {
+    text-align: center;
+  }
+  
+  .hero-image {
+    margin-top: 1rem;
+  }
+  
+  .hero-img {
+    border-radius: 1rem;
+    max-width: 100%;
+    height: auto;
+  }
+  
   .hero-section,
   .features-overview,
   .key-features,
@@ -550,31 +574,143 @@ html, body {
     padding: 1.5rem 0;
     border-radius: 0.8rem;
   }
+  
   .features-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
     width: 100%;
   }
+  
   .feature-item,
   .feature-card {
     padding: 1.2rem;
+    margin-bottom: 0.5rem;
   }
+  
+  .feature-item h4,
+  .feature-card h4 {
+    font-size: 1rem;
+  }
+  
+  .feature-item p,
+  .feature-card p {
+    font-size: 0.85rem;
+  }
+  
   .final-cta {
-    padding: 1.5rem 0;
+    padding: 1.5rem 1rem;
   }
+  
+  .final-cta h3 {
+    font-size: 1.4rem;
+  }
+  
+  .final-cta p {
+    font-size: 1rem;
+  }
+  
   .cta-group {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
   }
+  
+  .cta-btn {
+    width: 100%;
+    max-width: 280px;
+    padding: 1rem;
+    font-size: 1rem;
+    text-align: center;
+  }
+  
   .container {
     padding: 0 1rem;
   }
+  
   .header-content {
     padding: 0 1rem;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: center;
   }
+  
   .home-main {
     padding: 1.5rem 0;
+  }
+  
+  .logo {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-root {
+    overflow-x: hidden;
+  }
+  
+  .app-title {
+    font-size: 1rem;
+  }
+  
+  .welcome-title {
+    font-size: 1.5rem;
+  }
+  
+  .welcome-desc {
+    font-size: 0.85rem;
+  }
+  
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .feature-item,
+  .feature-card {
+    padding: 1rem;
+  }
+  
+  .feature-icon,
+  .feature-icon-large {
+    font-size: 1.5rem;
+  }
+  
+  .cta-btn {
+    padding: 0.8rem;
+    font-size: 0.9rem;
+  }
+  
+  .final-cta {
+    padding: 1rem 0.5rem;
+  }
+  
+  .final-cta h3 {
+    font-size: 1.2rem;
+  }
+  
+  .final-cta p {
+    font-size: 0.9rem;
+  }
+}
+
+/* Tablet responsive improvements */
+@media (min-width: 601px) and (max-width: 1024px) {
+  .hero-content {
+    gap: 2rem;
+  }
+  
+  .features-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.2rem;
+  }
+  
+  .feature-item,
+  .feature-card {
+    padding: 1.3rem;
+  }
+  
+  .container {
+    padding: 0 1.5rem;
   }
 }
 @keyframes fadeSlideUp {

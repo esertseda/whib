@@ -503,19 +503,206 @@ function getPhotoUrl(photoUrl) {
   }
 }
 @media (max-width: 600px) {
-  .dashboard-header {
-    padding: 0.7rem 0 0.7rem 0;
+  .dashboard-root {
+    padding: 0;
   }
+  
+  .dashboard-header {
+    padding: 0.7rem 1rem;
+  }
+  
+  .header-content {
+    gap: 0.5rem;
+  }
+  
+  .logo {
+    width: 40px;
+    height: 40px;
+  }
+  
   .app-title {
     font-size: 1.1rem;
   }
+  
+  .dashboard-main {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .sidebar {
+    padding: 1rem 0.5rem;
+    max-height: 200px;
+  }
+  
   .sidebar-title {
     font-size: 1rem;
+    margin-bottom: 0.5rem;
   }
+  
+  .places-search {
+    font-size: 0.9rem;
+    padding: 0.6rem 0.8rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .place-card {
+    min-width: 160px;
+    padding: 0.5rem;
+  }
+  
+  .place-title {
+    font-size: 0.9rem;
+  }
+  
+  .place-meta,
+  .place-date {
+    font-size: 0.75rem;
+  }
+  
+  .place-desc {
+    font-size: 0.8rem;
+  }
+  
+  .place-actions {
+    gap: 0.3rem;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    padding: 0.3rem;
+    font-size: 0.8rem;
+  }
+  
+  .map-area {
+    height: 60vh;
+    min-height: 300px;
+  }
+  
+  .fab {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+    font-size: 1.2rem;
+  }
+  
   .modal-content {
     min-width: 0;
-    padding: 1.1rem 0.5rem 0.7rem 0.5rem;
+    padding: 1.5rem 1rem;
     border-radius: 1rem;
+    margin: 1rem;
+  }
+  
+  .close-modal {
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-header {
+    padding: 0.5rem 0.5rem;
+  }
+  
+  .header-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.3rem;
+  }
+  
+  .logo {
+    width: 35px;
+    height: 35px;
+  }
+  
+  .app-title {
+    font-size: 1rem;
+  }
+  
+  .dashboard-main {
+    padding: 0.25rem;
+  }
+  
+  .sidebar {
+    padding: 0.75rem 0.25rem;
+    max-height: 180px;
+  }
+  
+  .sidebar-title {
+    font-size: 0.9rem;
+  }
+  
+  .places-search {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem;
+  }
+  
+  .place-card {
+    min-width: 140px;
+    padding: 0.4rem;
+  }
+  
+  .place-title {
+    font-size: 0.85rem;
+  }
+  
+  .place-meta,
+  .place-date {
+    font-size: 0.7rem;
+  }
+  
+  .place-thumb {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .map-area {
+    height: 50vh;
+    min-height: 250px;
+  }
+  
+  .fab {
+    width: 45px;
+    height: 45px;
+    bottom: 15px;
+    right: 15px;
+    font-size: 1.1rem;
+  }
+  
+  .modal-content {
+    padding: 1rem 0.75rem;
+    margin: 0.5rem;
+  }
+  
+  .close-modal {
+    top: 0.25rem;
+    right: 0.25rem;
+    font-size: 1.3rem;
+  }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+  .place-card {
+    min-height: 80px;
+    padding: 0.75rem;
+  }
+  
+  .edit-btn,
+  .delete-btn {
+    min-width: 40px;
+    min-height: 40px;
+    padding: 0.5rem;
+  }
+  
+  .fab {
+    min-width: 56px;
+    min-height: 56px;
+  }
+  
+  .places-search {
+    min-height: 44px;
   }
 }
 </style> 

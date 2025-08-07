@@ -1182,12 +1182,20 @@ async function exportAsPDF() {
           </div>
         </div>
         <div style="background: white; padding: 12px; border-radius: 8px; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-          <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #F472B6;">Optimized Route Order:</div>
-          <div style="font-size: 10px; line-height: 1.4;">
+          <div style="font-size: 12px; font-weight: bold; margin-bottom: 10px; color: #F472B6; text-align: center;">Optimized Route Order</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
       `;
 
               routeResults.value.optimizedPlaces.forEach((place, index) => {
-          pdfContent += `${index + 1}. ${place.name}${index < routeResults.value.optimizedPlaces.length - 1 ? ' → ' : ''}`;
+          pdfContent += `
+            <div style="display: flex; align-items: center; padding: 8px; background: #F9FAFB; border-radius: 6px; border-left: 3px solid #F472B6;">
+              <div style="background: #F472B6; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: bold; margin-right: 10px;">${index + 1}</div>
+              <div style="flex-grow: 1;">
+                <div style="font-size: 11px; font-weight: bold; color: #111827; margin-bottom: 2px;">${place.name}</div>
+                <div style="font-size: 9px; color: #6B7280; text-transform: capitalize;">${place.category}</div>
+              </div>
+            </div>
+          `;
         });
 
       pdfContent += `
@@ -1398,6 +1406,237 @@ onMounted(() => {
   margin-bottom: 2rem;
   padding-bottom: 1rem;
   border-bottom: 2px solid #f0f0f0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .travel-list-root {
+    padding: 1rem 0.5rem;
+  }
+  
+  .cities-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .city-card {
+    padding: 1rem;
+    border-radius: 0.75rem;
+  }
+  
+  .city-name {
+    font-size: 1.25rem;
+  }
+  
+  .city-stats {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .city-header-detail {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .header-content {
+    order: 1;
+  }
+  
+  .header-actions {
+    order: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .export-pdf-btn, .clear-city-btn {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
+  }
+  
+  .city-title {
+    font-size: 1.8rem;
+  }
+  
+  .city-summary {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .summary-stats {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+    text-align: center;
+  }
+  
+  .places-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .category-header {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    margin-bottom: 1rem;
+  }
+  
+  .category-title {
+    font-size: 1.25rem;
+  }
+  
+  .places-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .place-card {
+    padding: 1rem;
+    border-radius: 0.5rem;
+  }
+  
+  .place-name {
+    font-size: 1rem;
+  }
+  
+  .place-address {
+    font-size: 0.8rem;
+  }
+  
+  .place-rating {
+    font-size: 0.8rem;
+  }
+  
+  .map-section {
+    margin-bottom: 2rem;
+  }
+  
+  .map-container {
+    height: 300px;
+    border-radius: 0.75rem;
+  }
+  
+  .legend-items {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .legend-item {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .travel-list-root {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  .travel-list-title {
+    font-size: 1.5rem;
+  }
+  
+  .travel-list-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .clear-all-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .city-card {
+    padding: 0.75rem;
+  }
+  
+  .city-name {
+    font-size: 1.1rem;
+  }
+  
+  .city-country {
+    font-size: 0.8rem;
+  }
+  
+  .city-title {
+    font-size: 1.5rem;
+  }
+  
+  .city-subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .back-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .export-pdf-btn, .clear-city-btn {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.75rem;
+  }
+  
+  .city-summary {
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label {
+    font-size: 0.8rem;
+  }
+  
+  .map-container {
+    height: 250px;
+  }
+  
+  .map-title {
+    font-size: 1.3rem;
+  }
+}
+
+/* Tablet styles */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .travel-list-root {
+    padding: 2rem 1rem;
+  }
+  
+  .cities-grid {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.25rem;
+  }
+  
+  .city-header-detail {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .export-pdf-btn, .clear-city-btn {
+    width: auto;
+    min-width: 120px;
+  }
+  
+  .places-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  
+  .map-container {
+    height: 400px;
+  }
 }
 
 .back-btn {
