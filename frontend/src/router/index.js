@@ -35,10 +35,7 @@ router.beforeEach((to, from, next) => {
   if ((to.path === '/login' || to.path === '/register') && token) {
     return next('/dashboard');
   }
-  // If logged in and trying to access home, redirect to dashboard
-  if (to.path === '/' && token) {
-    return next('/dashboard');
-  }
+  // Allow logged in users to access home page
   if (authRequired && !token) {
     return next('/login');
   }

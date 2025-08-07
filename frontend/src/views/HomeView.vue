@@ -18,8 +18,13 @@
                 My Travel Map is your personal travel journal and map. Mark the places you've visited, add memories, and visualize your journeys on an interactive map.
               </p>
               <div class="cta-group">
-                <router-link to="/login" class="cta-btn login-btn">Login</router-link>
-                <router-link to="/register" class="cta-btn register-btn">Register</router-link>
+                <div v-if="!isLoggedIn">
+                  <router-link to="/login" class="cta-btn login-btn">Login</router-link>
+                  <router-link to="/register" class="cta-btn register-btn">Register</router-link>
+                </div>
+                <div v-else>
+                  <router-link to="/dashboard" class="cta-btn dashboard-btn">Go to Dashboard</router-link>
+                </div>
               </div>
             </div>
             <div class="hero-image">
@@ -98,8 +103,13 @@
           <h3>Ready to Start Your Travel Journey?</h3>
           <p>Join thousands of travelers documenting their adventures!</p>
           <div class="cta-group">
-            <router-link to="/register" class="cta-btn register-btn">Get Started Free</router-link>
-            <router-link to="/login" class="cta-btn login-btn">Sign In</router-link>
+            <div v-if="!isLoggedIn">
+              <router-link to="/register" class="cta-btn register-btn">Get Started Free</router-link>
+              <router-link to="/login" class="cta-btn login-btn">Sign In</router-link>
+            </div>
+            <div v-else>
+              <router-link to="/dashboard" class="cta-btn dashboard-btn">Continue Your Journey</router-link>
+            </div>
           </div>
         </div>
       </section>
@@ -108,7 +118,11 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, computed } from 'vue'
+
+const isLoggedIn = computed(() => {
+  return !!localStorage.getItem('token')
+})
 
 onMounted(() => {
       // Start initial animations
@@ -389,6 +403,28 @@ html, body {
   color: #fff;
   transform: translateY(-3px) scale(1.05);
   box-shadow: 0 8px 25px rgba(252, 182, 159, 0.3);
+}
+
+.dashboard-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  text-decoration: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  display: inline-block;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  border: none;
+  cursor: pointer;
+}
+
+.dashboard-btn:hover, .dashboard-btn:focus {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  color: #fff;
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
 }
 .section-title {
   font-size: 1.3rem;

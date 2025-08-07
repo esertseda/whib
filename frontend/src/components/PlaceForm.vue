@@ -330,45 +330,28 @@ function removePhoto() {
 }
 
 async function handleSubmit() {
-  const fd = new FormData();
-
-  // Eğer yeni bir fotoğraf seçildiyse önce onu Cloudinary'ye yükle
-  let uploadedImageUrl = form.value.photoUrl;
-
+  // FormData oluştur
+  const formData = new FormData();
+  
+  // Temel verileri ekle
+  formData.append('title', form.value.title);
+  formData.append('description', form.value.description);
+  formData.append('country', form.value.country);
+  formData.append('city', form.value.city);
+  formData.append('lat', form.value.lat);
+  formData.append('lng', form.value.lng);
+  formData.append('visitedAt', form.value.visitedAt);
+  
+  // Eğer yeni fotoğraf varsa ekle
   if (form.value.photo) {
-    const imageFormData = new FormData();
-    imageFormData.append('image', form.value.photo);
-
-    try {
-      const response = await axios.post('/api/upload/image', imageFormData, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      });
-
-      uploadedImageUrl = response.data.imageUrl;
-    } catch (error) {
-      console.error('Image upload failed:', error);
-      showNotification('Image upload failed!', 'warning');
-      return;
-    }
+    formData.append('photo', form.value.photo);
+  } else if (form.value.photoUrl) {
+    // Mevcut fotoğraf URL'ini ekle
+    formData.append('photoUrl', form.value.photoUrl);
   }
 
-  // Ana form verilerini oluştur
-  const placeData = {
-    title: form.value.title,
-    description: form.value.description,
-    country: form.value.country,
-    city: form.value.city,
-    coordinates: {
-      lat: parseFloat(form.value.lat),
-      lng: parseFloat(form.value.lng),
-    },
-    visitedAt: form.value.visitedAt,
-    photoUrl: uploadedImageUrl, // ← Cloudinary URL burada
-  };
-
-  emit('submit', placeData);
+  // Parent component'e FormData'yı gönder
+  emit('submit', formData);
 }
 
 

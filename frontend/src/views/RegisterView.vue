@@ -21,8 +21,10 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 import axios from 'axios';
 
+const router = useRouter();
 const email = ref('');
 const password = ref('');
 const error = ref('');
@@ -33,6 +35,28 @@ async function register() {
     await axios.post('/api/auth/register', { email: email.value, password: password.value });
     success.value = true;
     error.value = '';
+    
+    // Başarılı kayıt sonrası otomatik giriş yap
+    try {
+      const loginResponse = await axios.post('/api/auth/login', { 
+        email: email.value, 
+        password: password.value 
+      });
+      
+      localStorage.setItem('token', loginResponse.data.token);
+      
+      // Dashboard'a yönlendir
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1000);
+      
+    } catch (loginErr) {
+      // Otomatik giriş başarısız olursa login sayfasına yönlendir
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+    }
+    
   } catch (err) {
     error.value = err.response?.data?.message || 'Registration failed';
   }

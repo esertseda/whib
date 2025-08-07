@@ -53,9 +53,9 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
     console.log('POST /api/places - User ID:', req.userId);
     console.log('POST /api/places - File:', req.file);
     
-    const { title, description, country, city, coordinates, visitedAt, wishlist, category, notes } = req.body;
+    const { title, description, country, city, lat, lng, visitedAt, wishlist, category, notes } = req.body;
     
-    console.log('Parsed data:', { title, description, country, city, coordinates, visitedAt, wishlist, category, notes });
+    console.log('Parsed data:', { title, description, country, city, lat, lng, visitedAt, wishlist, category, notes });
     
     // Prevent duplicate city in wishlist for the same user
     if (wishlist === 'true' || wishlist === true) {
@@ -76,7 +76,7 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
       description,
       country,
       city,
-      coordinates: coordinates || { lat: 0, lng: 0 },
+      coordinates: { lat: parseFloat(lat) || 0, lng: parseFloat(lng) || 0 },
       visitedAt,
       photoUrl,
       wishlist: wishlist === 'true' || wishlist === true,
@@ -100,13 +100,13 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
 // Update a place
 router.put('/:id', auth, upload.single('photo'), async (req, res) => {
   try {
-    const { title, description, country, city, coordinates, visitedAt, notes } = req.body;
+    const { title, description, country, city, lat, lng, visitedAt, notes } = req.body;
     const updateData = {
       title,
       description,
       country,
       city,
-      coordinates: coordinates || { lat: 0, lng: 0 },
+      coordinates: { lat: parseFloat(lat) || 0, lng: parseFloat(lng) || 0 },
       visitedAt,
       notes,
     };
