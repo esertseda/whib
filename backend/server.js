@@ -24,9 +24,11 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://whib-frontend.onrender.com', 'http://localhost:3000']
+    ? ['https://whib-frontend.onrender.com', 'http://localhost:3000', 'https://whib-frontend.onrender.com']
     : 'http://localhost:3000',
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 
@@ -77,7 +79,19 @@ app.use('/api/geocoding', geocodingRoutes);
 app.use('/api/upload', uploadRoutes);
 
 app.get('/', (req, res) => {
-  res.send('Where Have I Been? API');
+  res.json({ 
+    message: 'Where Have I Been? API',
+    status: 'running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
 });
 
 app.listen(PORT, () => {
