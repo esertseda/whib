@@ -144,4 +144,45 @@ router.get('/fix-photos', auth, async (req, res) => {
   }
 });
 
+// Migration endpoint to move photos to Cloudinary
+router.post('/migrate-to-cloudinary', auth, async (req, res) => {
+  try {
+    const places = await Place.find({ userId: req.userId, photoUrl: { $exists: true, $ne: '' } });
+    let migratedCount = 0;
+    
+    for (const place of places) {
+      if (place.photoUrl && place.photoUrl.startsWith('https://whib.onrender.com/uploads/')) {
+        // Extract filename from URL
+        const filename = place.photoUrl.split('/').pop();
+        const localPath = `./uploads/${filename}`;
+        
+        try {
+          // Upload to Cloudinary
+          const cloudinary = require('cloudinary').v2;
+          const result = await cloudinary.uploader.upload(localPath, {
+            folder: 'whib-uploads'
+          });
+          
+          // Update place with Cloudinary URL
+          await Place.updateOne(
+            { _id: place._id },
+            { $set: { photoUrl: result.secure_url } }
+          );
+          
+          migratedCount++;
+        } catch (uploadError) {
+          console.error(`Failed to upload ${filename}:`, uploadError);
+        }
+      }
+    }
+    
+    res.json({ 
+      message: `Migrated ${migratedCount} photos to Cloudinary`,
+      migratedCount 
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router; 

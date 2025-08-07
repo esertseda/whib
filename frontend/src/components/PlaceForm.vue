@@ -340,7 +340,7 @@ async function handleSubmit() {
     imageFormData.append('image', form.value.photo);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/upload/image', imageFormData, {
+      const response = await axios.post('/api/upload/image', imageFormData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
