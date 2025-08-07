@@ -10,7 +10,6 @@
       <aside class="sidebar" :aria-label="'Visited Places'">
                  <h2 class="sidebar-title">Visited Places</h2>
          <input v-model="searchQuery" class="places-search" type="text" placeholder="Search places..." />
-         <button @click="runMigration" class="migration-btn">Migrate Photos to Cloudinary</button>
         <ul class="places-list">
           <li v-for="place in filteredPlaces" :key="place._id" class="place-card" @click="showPlaceDetails(place)" tabindex="0">
                          <img v-if="place.photoUrl" :src="getPhotoUrl(place.photoUrl)" alt="Place photo" class="place-thumb" />
@@ -75,14 +74,6 @@ let mapPickMode = false;
 async function fetchPlaces() {
   const res = await axios.get('/api/places');
   places.value = res.data;
-  
-  // Debug: Check photo URLs
-  try {
-    const debugRes = await axios.get('/api/places/debug-photos');
-    console.log('Photo Debug Info:', debugRes.data);
-  } catch (error) {
-    console.error('Debug endpoint error:', error);
-  }
 }
 
 onMounted(fetchPlaces);
@@ -189,18 +180,7 @@ function formatDate(dateStr) {
   return d.toLocaleDateString();
 }
 
-async function runMigration() {
-  try {
-    console.log('Starting photo migration...');
-    const response = await axios.post('/api/places/migrate-to-cloudinary');
-    console.log('Migration result:', response.data);
-    alert(`Migration completed: ${response.data.migratedCount} photos migrated`);
-    await fetchPlaces(); // Refresh places
-  } catch (error) {
-    console.error('Migration failed:', error);
-    alert('Migration failed: ' + (error.response?.data?.message || error.message));
-  }
-}
+
 
 function getPhotoUrl(photoUrl) {
   if (!photoUrl) return '';
@@ -486,22 +466,7 @@ function getPhotoUrl(photoUrl) {
   box-shadow: 0 2px 8px 0 #a7c7e7;
 }
 
-.migration-btn {
-  width: 100%;
-  margin-bottom: 1rem;
-  padding: 0.7rem 1rem;
-  border-radius: 1rem;
-  border: none;
-  background: linear-gradient(90deg, #6ee7b7 0%, #a7c7e7 100%);
-  color: white;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
 
-.migration-btn:hover {
-  transform: translateY(-2px);
-}
 
 @media (max-width: 900px) {
   .dashboard-main {

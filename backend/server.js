@@ -5,6 +5,9 @@ dotenv.config();
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
 import authRoutes from './routes/auth.js';
 import placesRoutes from './routes/places.js';
 import statsRoutes from './routes/stats.js';
@@ -27,7 +30,17 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Note: Static file serving removed - now using Cloudinary for photo storage
+// Static folder for uploads (for existing photos)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+app.use('/uploads', express.static(uploadsDir));
 
 // Connect to MongoDB
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/whib';
