@@ -986,13 +986,14 @@ async function exportAsPDF() {
     console.log('PDF Generation - City name:', city.name);
     console.log('PDF Generation - City country:', city.country);
     
-    // Compact header design
+    // Modern header design
     let pdfContent = `
-      <div style="text-align: center; margin-bottom: 15px; padding: 12px; background: #6366F1; color: white; border-radius: 6px;">
-        <div style="font-size: 20px; font-weight: bold; margin: 0 0 4px 0;">${city.name}, ${city.country}</div>
-        <div style="font-size: 10px; opacity: 0.8;">Travel Guide • ${new Date().toLocaleDateString('en-US', { 
+      <div style="text-align: center; margin-bottom: 20px; padding: 20px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);">
+        <div style="font-size: 24px; font-weight: bold; margin: 0 0 8px 0; letter-spacing: 0.5px;">${city.name}, ${city.country}</div>
+        <div style="width: 50px; height: 2px; background: rgba(255,255,255,0.7); margin: 0 auto 10px auto; border-radius: 1px;"></div>
+        <div style="font-size: 11px; opacity: 0.9;">Travel Guide • ${new Date().toLocaleDateString('en-US', { 
           year: 'numeric', 
-          month: 'short', 
+          month: 'long', 
           day: 'numeric' 
         })}</div>
       </div>
@@ -1039,9 +1040,9 @@ async function exportAsPDF() {
       if (places.length > 0) {
         totalPlaces += places.length;
         pdfContent += `
-          <div style="margin-bottom: 10px; padding: 10px; background: ${categoryColors[category]}; border-radius: 6px; page-break-inside: avoid;">
-            <div style="font-size: 12px; font-weight: bold; margin: 0 0 6px 0; color: white; text-align: center;">${categoryNames[category]} (${places.length})</div>
-            <div style="display: flex; flex-wrap: wrap; gap: 5px;">
+          <div style="margin-bottom: 15px; padding: 15px; background: linear-gradient(135deg, ${categoryColors[category]} 0%, ${categoryColors[category]}CC 100%); border-radius: 10px; page-break-inside: avoid; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; color: white; text-align: center; letter-spacing: 0.3px;">${categoryNames[category]} (${places.length})</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
         `;
 
         places.forEach((place, index) => {
@@ -1052,9 +1053,10 @@ async function exportAsPDF() {
           }
           
           pdfContent += `
-            <div style="background: white; padding: 6px; border-radius: 4px; width: calc(50% - 2.5px); box-sizing: border-box; page-break-inside: avoid;">
-              <div style="font-weight: bold; font-size: 10px; margin-bottom: 2px; color: #111827;">${place.name}</div>
-              ${place.rating ? `<div style="font-size: 8px; color: #F59E0B;">★ ${place.rating}</div>` : ''}
+            <div style="background: white; padding: 10px; border-radius: 8px; width: calc(50% - 4px); box-sizing: border-box; page-break-inside: avoid; box-shadow: 0 1px 4px rgba(0,0,0,0.1); border: 1px solid #F3F4F6;">
+              <div style="font-weight: bold; font-size: 11px; margin-bottom: 4px; color: #111827; line-height: 1.2;">${place.name}</div>
+              ${cleanAddress ? `<div style="font-size: 9px; color: #6B7280; margin-bottom: 3px; line-height: 1.3;">${cleanAddress}</div>` : ''}
+              ${place.rating ? `<div style="font-size: 9px; color: #F59E0B; font-weight: bold; background: #FEF3C7; padding: 2px 6px; border-radius: 12px; display: inline-block;">★ ${place.rating}</div>` : ''}
             </div>
           `;
         });
@@ -1071,8 +1073,9 @@ async function exportAsPDF() {
     // Page break before map section - force to second page
     pdfContent += `
       <div style="page-break-before: always;"></div>
-      <div style="text-align: center; margin-bottom: 10px; padding: 8px; background: #6366F1; color: white; border-radius: 4px;">
-        <div style="font-size: 12px; font-weight: bold;">${city.name} - Route & Map</div>
+      <div style="text-align: center; margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; border-radius: 10px; box-shadow: 0 3px 12px rgba(99, 102, 241, 0.2);">
+        <div style="font-size: 18px; font-weight: bold; letter-spacing: 0.4px;">${city.name} - Route & Map</div>
+        <div style="width: 40px; height: 2px; background: rgba(255,255,255,0.6); margin: 8px auto 0 auto; border-radius: 1px;"></div>
       </div>
     `;
     
@@ -1082,19 +1085,28 @@ async function exportAsPDF() {
       const mapElement = document.querySelector('#map');
       if (mapElement && mapElement.offsetWidth > 0) {
         // Wait longer to ensure map and route are fully rendered
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         
-        // Force map to invalidate and redraw to ensure route is visible
+        // Force map to invalidate and redraw to ensure route is visible and properly aligned
         const mapInstance = mapElement._leaflet_map;
         if (mapInstance) {
+          // Force map redraw multiple times to fix alignment issues
           mapInstance.invalidateSize();
-          mapInstance.fitBounds(mapInstance.getBounds());
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 500));
+          mapInstance.invalidateSize();
+          
+          // Fit bounds and center the map properly
+          if (mapInstance.getBounds && mapInstance.getBounds().isValid()) {
+            mapInstance.fitBounds(mapInstance.getBounds());
+          }
+          
+          // Final wait to ensure everything is properly rendered
+          await new Promise(resolve => setTimeout(resolve, 1500));
         }
         
-        // Capture map as image with higher quality and better settings
+        // Capture map as image with optimized settings for route alignment
         const canvas = await html2canvas(mapElement, {
-          scale: 1.5, // Balanced scale for quality and performance
+          scale: 2, // Higher scale for better route line quality
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
@@ -1103,25 +1115,33 @@ async function exportAsPDF() {
           logging: false,
           removeContainer: false,
           foreignObjectRendering: false,
-          imageTimeout: 5000
+          imageTimeout: 10000,
+          ignoreElements: (element) => {
+            // Ignore certain overlay elements that might cause alignment issues
+            return element.classList && (
+              element.classList.contains('leaflet-control-container') ||
+              element.classList.contains('leaflet-top') ||
+              element.classList.contains('leaflet-bottom')
+            );
+          }
         });
         
         mapImageData = canvas.toDataURL('image/png', 0.95);
         
         pdfContent += `
-          <div style="margin-bottom: 10px; padding: 8px; background: #6366F1; border-radius: 4px; page-break-inside: avoid;">
-            <div style="font-size: 11px; font-weight: bold; margin: 0 0 6px 0; color: white; text-align: center;">Map</div>
-            <div style="text-align: center; background: white; border-radius: 4px; padding: 6px;">
-              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 4px;" alt="Map View" />
+          <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); border-radius: 12px; page-break-inside: avoid; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);">
+            <div style="font-size: 16px; font-weight: bold; margin: 0 0 12px 0; color: white; text-align: center; letter-spacing: 0.3px;">Interactive Map</div>
+            <div style="text-align: center; background: white; border-radius: 8px; padding: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 6px; border: 2px solid #F3F4F6;" alt="Map View" />
             </div>
           </div>
         `;
       } else {
         pdfContent += `
-          <div style="margin-bottom: 10px; padding: 8px; background: #6366F1; border-radius: 4px; page-break-inside: avoid;">
-            <div style="font-size: 11px; font-weight: bold; margin: 0 0 6px 0; color: white; text-align: center;">Map</div>
-            <div style="text-align: center; padding: 10px; background: white; border-radius: 4px; border: 1px dashed #6366F1; color: #111827;">
-              <div style="font-size: 9px; font-weight: bold;">Map not available</div>
+          <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); border-radius: 12px; page-break-inside: avoid; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);">
+            <div style="font-size: 16px; font-weight: bold; margin: 0 0 12px 0; color: white; text-align: center; letter-spacing: 0.3px;">Interactive Map</div>
+            <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px dashed #6366F1; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 12px; font-weight: bold;">Map not available for capture</div>
             </div>
           </div>
         `;
@@ -1129,10 +1149,10 @@ async function exportAsPDF() {
     } catch (mapErr) {
       console.log('Map capture not available:', mapErr);
       pdfContent += `
-        <div style="margin-bottom: 10px; padding: 8px; background: #6366F1; border-radius: 4px; page-break-inside: avoid;">
-          <div style="font-size: 11px; font-weight: bold; margin: 0 0 6px 0; color: white; text-align: center;">Map</div>
-          <div style="text-align: center; padding: 10px; background: white; border-radius: 4px; border: 1px dashed #6366F1; color: #111827;">
-            <div style="font-size: 9px; font-weight: bold;">Map capture failed</div>
+        <div style="margin-bottom: 20px; padding: 15px; background: linear-gradient(135deg, #6366F1 0%, #4F46E5 100%); border-radius: 12px; page-break-inside: avoid; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);">
+          <div style="font-size: 16px; font-weight: bold; margin: 0 0 12px 0; color: white; text-align: center; letter-spacing: 0.3px;">Interactive Map</div>
+          <div style="text-align: center; padding: 20px; background: white; border-radius: 8px; border: 2px dashed #6366F1; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="font-size: 12px; font-weight: bold;">Map capture failed</div>
           </div>
         </div>
       `;
@@ -1143,19 +1163,27 @@ async function exportAsPDF() {
     console.log('PDF Generation - routeResults.value?.success:', routeResults.value?.success);
     
     pdfContent += `
-      <div style="padding: 8px; background: #F472B6; border-radius: 4px; color: white; page-break-inside: avoid;">
-        <div style="font-size: 11px; font-weight: bold; margin: 0 0 6px 0; text-align: center;">Route Optimization</div>
+      <div style="padding: 15px; background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); border-radius: 12px; color: white; page-break-inside: avoid; box-shadow: 0 4px 15px rgba(244, 114, 182, 0.2);">
+        <div style="font-size: 16px; font-weight: bold; margin: 0 0 12px 0; text-align: center; letter-spacing: 0.3px;">Route Optimization</div>
     `;
     
     if (routeResults.value && routeResults.value.success) {
       console.log('PDF Generation - Adding route optimization content');
       pdfContent += `
-        <div style="background: white; padding: 6px; border-radius: 4px; margin-bottom: 6px; color: #111827; text-align: center;">
-          <span style="font-size: 9px; font-weight: bold;">${routeResults.value.distance} km • ${routeResults.value.duration} min • ${routeResults.value.stops} stops • ${getTransportType(routeResults.value.profile)}</span>
+        <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="text-align: center; margin-bottom: 8px;">
+            <div style="font-size: 12px; font-weight: bold; color: #F472B6;">Route Statistics</div>
+          </div>
+          <div style="display: flex; justify-content: space-around; text-align: center;">
+            <div><span style="font-size: 11px; font-weight: bold; color: #F472B6;">${routeResults.value.distance} km</span><br><span style="font-size: 8px; color: #6B7280;">Distance</span></div>
+            <div><span style="font-size: 11px; font-weight: bold; color: #F472B6;">${routeResults.value.duration} min</span><br><span style="font-size: 8px; color: #6B7280;">Duration</span></div>
+            <div><span style="font-size: 11px; font-weight: bold; color: #F472B6;">${routeResults.value.stops}</span><br><span style="font-size: 8px; color: #6B7280;">Stops</span></div>
+            <div><span style="font-size: 11px; font-weight: bold; color: #F472B6;">${getTransportType(routeResults.value.profile)}</span><br><span style="font-size: 8px; color: #6B7280;">Transport</span></div>
+          </div>
         </div>
-        <div style="background: white; padding: 6px; border-radius: 4px; color: #111827;">
-          <div style="font-size: 9px; font-weight: bold; margin-bottom: 4px;">Route Order:</div>
-          <div style="font-size: 8px; line-height: 1.3;">
+        <div style="background: white; padding: 12px; border-radius: 8px; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <div style="font-size: 12px; font-weight: bold; margin-bottom: 8px; color: #F472B6;">Optimized Route Order:</div>
+          <div style="font-size: 10px; line-height: 1.4;">
       `;
 
               routeResults.value.optimizedPlaces.forEach((place, index) => {
@@ -1177,14 +1205,16 @@ async function exportAsPDF() {
         const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
         if (placesWithCoords.length >= 2) {
           pdfContent += `
-            <div style="text-align: center; padding: 8px; background: white; border-radius: 4px; color: #111827;">
-              <div style="font-size: 9px; font-weight: bold;">Route optimization in progress...</div>
+            <div style="text-align: center; padding: 15px; background: white; border-radius: 8px; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Route optimization in progress...</div>
+              <div style="font-size: 10px; color: #6B7280;">Calculating optimal route for ${placesWithCoords.length} places</div>
             </div>
           `;
         } else {
           pdfContent += `
-            <div style="text-align: center; padding: 8px; background: white; border-radius: 4px; color: #111827;">
-              <div style="font-size: 9px; font-weight: bold;">Route optimization not available</div>
+            <div style="text-align: center; padding: 15px; background: white; border-radius: 8px; color: #111827; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 12px; font-weight: bold; margin-bottom: 5px;">Route optimization not available</div>
+              <div style="font-size: 10px; color: #6B7280;">At least 2 places with coordinates needed</div>
             </div>
           `;
         }
@@ -1196,11 +1226,13 @@ async function exportAsPDF() {
 
 
 
-    // Compact footer
+    // Modern footer
     pdfContent += `
-      <div style="margin-top: 10px; text-align: center; padding: 6px; background: #111827; border-radius: 4px; color: white; page-break-inside: avoid;">
-        <div style="font-size: 8px; font-weight: bold;">Where Have I Been • ${new Date().toLocaleDateString('en-US', { 
-          month: 'short', 
+      <div style="margin-top: 20px; text-align: center; padding: 12px; background: linear-gradient(135deg, #111827 0%, #374151 100%); border-radius: 10px; color: white; page-break-inside: avoid; box-shadow: 0 3px 12px rgba(17, 24, 39, 0.2);">
+        <div style="font-size: 11px; font-weight: bold; letter-spacing: 0.2px;">Where Have I Been</div>
+        <div style="width: 30px; height: 1px; background: rgba(255,255,255,0.5); margin: 4px auto; border-radius: 1px;"></div>
+        <div style="font-size: 9px; opacity: 0.8;">Generated ${new Date().toLocaleDateString('en-US', { 
+          month: 'long', 
           day: 'numeric',
           year: 'numeric'
         })}</div>
