@@ -4,21 +4,12 @@ import Place from '../models/Place.js';
 import auth from '../middleware/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cloudinaryUpload from '../config/cloudinary.js';
 
 const router = express.Router();
 
-// Multer setup
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads'));
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + '-' + file.originalname);
-  },
-});
-const upload = multer({ storage });
+// Use Cloudinary for photo uploads
+const upload = cloudinaryUpload;
 
 // Get all places for the logged-in user
 router.get('/', auth, async (req, res) => {
@@ -58,7 +49,7 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
       }
     }
     
-    const photoUrl = req.file ? `/uploads/${req.file.filename}` : '';
+    const photoUrl = req.file ? req.file.path : '';
     
     const placeData = {
       userId: req.userId,
@@ -101,7 +92,7 @@ router.put('/:id', auth, upload.single('photo'), async (req, res) => {
       notes,
     };
     if (req.file) {
-      updateData.photoUrl = `/uploads/${req.file.filename}`;
+      updateData.photoUrl = req.file.path;
     }
     const place = await Place.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },

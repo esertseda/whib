@@ -182,14 +182,17 @@ function formatDate(dateStr) {
 
 function getPhotoUrl(photoUrl) {
   if (!photoUrl) return '';
-  // Eğer URL zaten tam URL ise, olduğu gibi döndür
+  // Eğer URL zaten tam URL ise (Cloudinary), olduğu gibi döndür
   if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
     return photoUrl;
   }
-  // If it's a relative path, add the backend URL
-  const isProduction = import.meta.env.PROD;
-  const baseUrl = import.meta.env.VITE_API_URL || (isProduction ? 'https://whib.onrender.com' : 'http://localhost:5000');
-  return `${baseUrl}${photoUrl}`;
+  // Eğer eski format uploads path ise, backend URL'ini ekle
+  if (photoUrl.startsWith('/uploads/')) {
+    const isProduction = import.meta.env.PROD;
+    const baseUrl = import.meta.env.VITE_API_URL || (isProduction ? 'https://whib.onrender.com' : 'http://localhost:5000');
+    return `${baseUrl}${photoUrl}`;
+  }
+  return photoUrl;
 }
 </script>
 
