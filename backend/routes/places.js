@@ -4,12 +4,31 @@ import Place from '../models/Place.js';
 import auth from '../middleware/auth.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import cloudinaryUpload from '../config/cloudinary.js';
+import fs from 'fs';
+// Temporary local storage configuration
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Ensure uploads directory exists
+const uploadsDir = path.join(__dirname, '../uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
+// Local storage configuration
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
 
 const router = express.Router();
-
-// Use Cloudinary for photo uploads
-const upload = cloudinaryUpload;
 
 // Get all places for the logged-in user
 router.get('/', auth, async (req, res) => {
@@ -34,9 +53,9 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
     console.log('POST /api/places - User ID:', req.userId);
     console.log('POST /api/places - File:', req.file);
     
-    const { title, description, country, city, lat, lng, visitedAt, wishlist, category, notes } = req.body;
+    const { title, description, country, city, coordinates, visitedAt, wishlist, category, notes } = req.body;
     
-    console.log('Parsed data:', { title, description, country, city, lat, lng, visitedAt, wishlist, category, notes });
+    console.log('Parsed data:', { title, description, country, city, coordinates, visitedAt, wishlist, category, notes });
     
     // Prevent duplicate city in wishlist for the same user
     if (wishlist === 'true' || wishlist === true) {
@@ -49,7 +68,7 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
       }
     }
     
-    const photoUrl = req.file ? req.file.path : '';
+    const photoUrl = req.file ? `/uploads/${req.file.filename}` : (req.body.photoUrl || '');
     
     const placeData = {
       userId: req.userId,
@@ -57,7 +76,7 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
       description,
       country,
       city,
-      coordinates: { lat, lng },
+      coordinates: coordinates || { lat: 0, lng: 0 },
       visitedAt,
       photoUrl,
       wishlist: wishlist === 'true' || wishlist === true,
@@ -81,18 +100,18 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
 // Update a place
 router.put('/:id', auth, upload.single('photo'), async (req, res) => {
   try {
-    const { title, description, country, city, lat, lng, visitedAt, notes } = req.body;
+    const { title, description, country, city, coordinates, visitedAt, notes } = req.body;
     const updateData = {
       title,
       description,
       country,
       city,
-      coordinates: { lat, lng },
+      coordinates: coordinates || { lat: 0, lng: 0 },
       visitedAt,
       notes,
     };
     if (req.file) {
-      updateData.photoUrl = req.file.path;
+      updateData.photoUrl = `/uploads/${req.file.filename}`;
     }
     const place = await Place.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },
