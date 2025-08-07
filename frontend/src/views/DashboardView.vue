@@ -182,11 +182,11 @@ function formatDate(dateStr) {
 
 function getPhotoUrl(photoUrl) {
   if (!photoUrl) return '';
-  // Eğer URL zaten tam URL ise (Cloudinary), olduğu gibi döndür
+  // Cloudinary URL'leri doğrudan kullan
   if (photoUrl.startsWith('http://') || photoUrl.startsWith('https://')) {
     return photoUrl;
   }
-  // Eğer eski format uploads path ise, backend URL'ini ekle
+  // Eğer eski format uploads path ise, backend URL'ini ekle (fallback)
   if (photoUrl.startsWith('/uploads/')) {
     const isProduction = import.meta.env.PROD;
     const baseUrl = import.meta.env.VITE_API_URL || (isProduction ? 'https://whib.onrender.com' : 'http://localhost:5000');

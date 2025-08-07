@@ -2,31 +2,10 @@ import express from 'express';
 import multer from 'multer';
 import Place from '../models/Place.js';
 import auth from '../middleware/auth.js';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
-// Temporary local storage configuration
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import cloudinaryUpload from '../config/cloudinary.js';
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
-
-// Local storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadsDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
-});
-
-const upload = multer({ storage });
+// Use Cloudinary for photo uploads
+const upload = cloudinaryUpload;
 
 const router = express.Router();
 
@@ -68,7 +47,7 @@ router.post('/', auth, upload.single('photo'), async (req, res) => {
       }
     }
     
-    const photoUrl = req.file ? `/uploads/${req.file.filename}` : (req.body.photoUrl || '');
+    const photoUrl = req.file ? req.file.path : (req.body.photoUrl || '');
     
     const placeData = {
       userId: req.userId,
@@ -111,7 +90,7 @@ router.put('/:id', auth, upload.single('photo'), async (req, res) => {
       notes,
     };
     if (req.file) {
-      updateData.photoUrl = `/uploads/${req.file.filename}`;
+      updateData.photoUrl = req.file.path;
     }
     const place = await Place.findOneAndUpdate(
       { _id: req.params.id, userId: req.userId },

@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import Place from './models/Place.js';
 import { v2 as cloudinary } from 'cloudinary';
+import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -11,8 +10,6 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/whib';
-
 // Cloudinary configuration
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -20,71 +17,78 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/whib';
+
+mongoose.connect(MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+
+// Place model (basit versiyon)
+const PlaceSchema = new mongoose.Schema({
+  userId: String,
+  title: String,
+  description: String,
+  country: String,
+  city: String,
+  coordinates: {
+    lat: Number,
+    lng: Number
+  },
+  visitedAt: Date,
+  photoUrl: String,
+  wishlist: Boolean,
+  category: String,
+  notes: String
+});
+
+const Place = mongoose.model('Place', PlaceSchema);
+
 async function migrateToCloudinary() {
   try {
-    await mongoose.connect(MONGODB_URI);
-    console.log('Connected to MongoDB');
-
-    const places = await Place.find({ photoUrl: { $exists: true, $ne: '' } });
-    console.log(`Found ${places.length} places with photos`);
-
-    let migratedCount = 0;
-    let skippedCount = 0;
-
+    console.log('Starting migration to Cloudinary...');
+    
+    // Mevcut local fotoğrafları bul
+    const places = await Place.find({ 
+      photoUrl: { $regex: /^\/uploads\// } 
+    });
+    
+    console.log(`Found ${places.length} places with local photos to migrate`);
+    
     for (const place of places) {
-      if (!place.photoUrl) continue;
-
-      // Eğer zaten Cloudinary URL'i ise, atla
-      if (place.photoUrl.startsWith('http://') || place.photoUrl.startsWith('https://')) {
-        console.log(`Place ${place.title}: Already Cloudinary URL, skipping`);
-        skippedCount++;
-        continue;
-      }
-
-      // Eğer uploads path ise, dosyayı Cloudinary'ye yükle
-      if (place.photoUrl.startsWith('/uploads/')) {
-        const filePath = path.join(__dirname, place.photoUrl);
+      try {
+        const localPath = path.join(__dirname, 'uploads', place.photoUrl.replace('/uploads/', ''));
         
-        if (fs.existsSync(filePath)) {
-          try {
-            console.log(`Uploading ${place.title} photo to Cloudinary...`);
-            
-            const result = await cloudinary.uploader.upload(filePath, {
-              folder: 'uploads',
-              transformation: [{ width: 800, height: 600, crop: 'limit' }]
-            });
-
-            // Veritabanını güncelle
-            await Place.updateOne(
-              { _id: place._id },
-              { $set: { photoUrl: result.secure_url } }
-            );
-
-            console.log(`✓ Migrated ${place.title}: ${place.photoUrl} -> ${result.secure_url}`);
-            migratedCount++;
-
-            // Dosyayı sil (opsiyonel)
-            // fs.unlinkSync(filePath);
-            // console.log(`Deleted local file: ${filePath}`);
-
-          } catch (uploadError) {
-            console.error(`✗ Failed to upload ${place.title}:`, uploadError.message);
-          }
+        if (fs.existsSync(localPath)) {
+          console.log(`Uploading ${localPath} to Cloudinary...`);
+          
+          // Cloudinary'ye yükle
+          const result = await cloudinary.uploader.upload(localPath, {
+            folder: 'uploads',
+            transformation: [{ width: 800, height: 600, crop: 'limit' }]
+          });
+          
+          // Database'i güncelle
+          await Place.updateOne(
+            { _id: place._id },
+            { $set: { photoUrl: result.secure_url } }
+          );
+          
+          console.log(`✅ Migrated: ${place.title} -> ${result.secure_url}`);
         } else {
-          console.log(`✗ File not found: ${filePath}`);
+          console.log(`❌ File not found: ${localPath}`);
         }
+      } catch (error) {
+        console.error(`❌ Error migrating ${place.title}:`, error.message);
       }
     }
-
-    console.log(`\nMigration completed:`);
-    console.log(`- Migrated: ${migratedCount} photos`);
-    console.log(`- Skipped: ${skippedCount} photos (already Cloudinary)`);
-    console.log(`- Total processed: ${places.length} places`);
-
-    process.exit(0);
+    
+    console.log('Migration completed!');
   } catch (error) {
-    console.error('Migration error:', error);
-    process.exit(1);
+    console.error('Migration failed:', error);
+  } finally {
+    mongoose.disconnect();
   }
 }
 
