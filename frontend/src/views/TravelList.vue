@@ -992,42 +992,42 @@ async function exportAsPDF() {
     console.log('PDF Generation - routeResults.value?.success:', routeResults.value?.success);
     
     pdfContent += `
-      <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-        <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Route Optimization Results</h3>
+      <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: #333;">
+        <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center; color: #333;">Route Optimization Results</h3>
     `;
     
     if (routeResults.value && routeResults.value.success) {
       console.log('PDF Generation - Adding route optimization content');
       pdfContent += `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; color: #333;">
+          <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Total Distance</div>
             <div style="font-size: 16px;">${routeResults.value.distance} km</div>
           </div>
-          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+          <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Estimated Time</div>
             <div style="font-size: 16px;">${routeResults.value.duration} minutes</div>
           </div>
-          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+          <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Number of Stops</div>
             <div style="font-size: 16px;">${routeResults.value.stops} places</div>
           </div>
-          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+          <div style="text-align: center; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 8px;">
             <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Transport Type</div>
             <div style="font-size: 16px;">${getTransportType(routeResults.value.profile)}</div>
           </div>
         </div>
-        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
-          <h4 style="font-size: 16px; margin: 0 0 10px 0; font-family: 'Arial', 'Helvetica', sans-serif;">Optimized Route Order:</h4>
+        <div style="background: rgba(0,0,0,0.05); padding: 15px; border-radius: 8px; color: #333;">
+          <h4 style="font-size: 16px; margin: 0 0 10px 0; font-family: 'Arial', 'Helvetica', sans-serif; color: #333;">Optimized Route Order:</h4>
           <div style="display: flex; flex-direction: column; gap: 8px;">
       `;
 
       routeResults.value.optimizedPlaces.forEach((place, index) => {
         pdfContent += `
-          <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+          <div style="display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(0,0,0,0.02); border-radius: 5px; color: #333;">
             <span style="background: white; color: #667eea; width: 25px; height: 25px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">${index + 1}</span>
-            <span style="font-weight: bold; font-size: 13px;">${place.name}</span>
-            <span style="font-size: 11px; opacity: 0.8;">${place.category}</span>
+            <span style="font-weight: bold; font-size: 13px; color: #333;">${place.name}</span>
+            <span style="font-size: 11px; opacity: 0.8; color: #555;">${place.category}</span>
           </div>
         `;
       });
@@ -1047,16 +1047,16 @@ async function exportAsPDF() {
       const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
       if (placesWithCoords.length >= 2) {
         pdfContent += `
-          <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-            <p style="font-size: 14px; margin: 0;">Route optimization is being calculated...</p>
-            <p style="font-size: 12px; margin: 10px 0 0 0; opacity: 0.8;">Please wait while we generate the optimal route for your ${placesWithCoords.length} places.</p>
+          <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.05); border-radius: 8px; color: #333;">
+            <p style="font-size: 14px; margin: 0; color: #333;">Route optimization is being calculated...</p>
+            <p style="font-size: 12px; margin: 10px 0 0 0; opacity: 0.8; color: #555;">Please wait while we generate the optimal route for your ${placesWithCoords.length} places.</p>
           </div>
         `;
       } else {
         pdfContent += `
-          <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-            <p style="font-size: 14px; margin: 0;">Route optimization not available</p>
-            <p style="font-size: 12px; margin: 10px 0 0 0; opacity: 0.8;">At least 2 places with coordinates are needed for route optimization.</p>
+          <div style="text-align: center; padding: 20px; background: rgba(0,0,0,0.05); border-radius: 8px; color: #333;">
+            <p style="font-size: 14px; margin: 0; color: #333;">Route optimization not available</p>
+            <p style="font-size: 12px; margin: 10px 0 0 0; opacity: 0.8; color: #555;">At least 2 places with coordinates are needed for route optimization.</p>
           </div>
         `;
       }
