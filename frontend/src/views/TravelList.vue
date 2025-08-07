@@ -966,17 +966,16 @@ async function exportAsPDF() {
       }
     }
 
-    // PDF için geçici container - jsPDF uyumlu basit tasarım
+    // PDF için geçici container - jsPDF uyumlu çok basit tasarım
     const tempContainer = document.createElement('div');
     tempContainer.style.cssText = `
-      width: 550px;
+      width: 500px;
       padding: 20px;
       font-family: Arial, Helvetica, sans-serif;
       color: #111827;
       background: #ffffff;
-      font-size: 12px;
-      line-height: 1.5;
-      word-spacing: 0.5px;
+      font-size: 11px;
+      line-height: 1.4;
     `;
 
     // Debug: Log city data
@@ -984,13 +983,13 @@ async function exportAsPDF() {
     console.log('PDF Generation - City name:', city.name);
     console.log('PDF Generation - City country:', city.country);
     
-    // Modern header design with website colors
+    // Basit header tasarımı - gradient yerine düz renk
     let pdfContent = `
-      <div style="text-align: center; margin-bottom: 35px; padding: 30px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); color: white; border-radius: 12px; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);">
-        <div style="font-size: 32px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; line-height: 1.2;">${city.name}</div>
-        <div style="font-size: 18px; margin: 0 0 15px 0; opacity: 0.9; font-weight: 300; line-height: 1.3;">${city.country}</div>
-        <div style="width: 60px; height: 4px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto 20px auto; border-radius: 2px;"></div>
-        <div style="font-size: 13px; opacity: 0.8; font-weight: 500; line-height: 1.4;">Travel Guide • Generated on ${new Date().toLocaleDateString('en-US', { 
+      <div style="text-align: center; margin-bottom: 30px; padding: 25px; background: #6366F1; color: white; border-radius: 8px;">
+        <div style="font-size: 28px; font-weight: bold; margin: 0 0 8px 0;">${city.name}</div>
+        <div style="font-size: 16px; margin: 0 0 12px 0; opacity: 0.9;">${city.country}</div>
+        <div style="width: 50px; height: 3px; background: #ffffff; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+        <div style="font-size: 12px; opacity: 0.8;">Travel Guide • Generated on ${new Date().toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'long', 
           day: 'numeric' 
@@ -998,7 +997,7 @@ async function exportAsPDF() {
       </div>
     `;
 
-    // Modern Places Section with improved design
+    // Basit Places Section - emoji ve gradient olmadan
     const categories = ['restaurant', 'cafe', 'bar', 'tourist', 'museum', 'shopping', 'other'];
     const categoryNames = {
       restaurant: 'Restaurants',
@@ -1011,23 +1010,23 @@ async function exportAsPDF() {
     };
 
     const categoryColors = {
-      restaurant: 'linear-gradient(135deg, #F472B6 0%, #EC4899 100%)',
-      cafe: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
-      bar: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
-      tourist: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-      museum: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
-      shopping: 'linear-gradient(135deg, #F472B6 0%, #EC4899 100%)',
-      other: 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)'
+      restaurant: '#F472B6',
+      cafe: '#6366F1',
+      bar: '#F59E0B',
+      tourist: '#10B981',
+      museum: '#8B5CF6',
+      shopping: '#F472B6',
+      other: '#6B7280'
     };
 
     const categoryIcons = {
-      restaurant: '🍽️',
-      cafe: '☕',
-      bar: '🍺',
-      tourist: '🏛️',
-      museum: '🏛️',
-      shopping: '🛍️',
-      other: '📍'
+      restaurant: 'R',
+      cafe: 'C',
+      bar: 'B',
+      tourist: 'T',
+      museum: 'M',
+      shopping: 'S',
+      other: 'O'
     };
 
     // Burada groupedPlaces Vue ref/computed olduğundan .value kullanıyoruz
@@ -1039,10 +1038,10 @@ async function exportAsPDF() {
       if (places.length > 0) {
         totalPlaces += places.length;
         pdfContent += `
-          <div style="margin-bottom: 30px; padding: 25px; background: ${categoryColors[category]}; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);">
-            <div style="text-align: center; margin-bottom: 20px;">
-              <div style="font-size: 20px; font-weight: 700; margin: 0 0 8px 0; color: white; letter-spacing: -0.3px; line-height: 1.3;">${categoryIcons[category]} ${categoryNames[category]}</div>
-              <div style="font-size: 13px; color: white; font-weight: 600; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; display: inline-block;">${places.length} places</div>
+          <div style="margin-bottom: 25px; padding: 20px; background: ${categoryColors[category]}; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 15px;">
+              <div style="font-size: 18px; font-weight: bold; margin: 0 0 6px 0; color: white;">${categoryIcons[category]} ${categoryNames[category]}</div>
+              <div style="font-size: 12px; color: white; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 15px; display: inline-block;">${places.length} places</div>
             </div>
             <table style="width: 100%; border-collapse: collapse;">
         `;
@@ -1059,11 +1058,11 @@ async function exportAsPDF() {
           }
           
           pdfContent += `
-            <td style="background: white; padding: 15px; border-radius: 10px; border: 1px solid #E5E7EB; width: 50%; vertical-align: top; margin: 5px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);">
-              <div style="font-weight: 700; font-size: 13px; margin-bottom: 8px; word-wrap: break-word; color: #111827; line-height: 1.4; overflow-wrap: break-word;">${place.name}</div>
-              ${cleanAddress ? `<div style="font-size: 11px; color: #6B7280; margin-bottom: 6px; word-wrap: break-word; line-height: 1.3; font-weight: 500; overflow-wrap: break-word;">📍 ${cleanAddress}</div>` : ''}
-              ${place.description ? `<div style="font-size: 10px; color: #9CA3AF; margin-bottom: 6px; word-wrap: break-word; line-height: 1.4; font-style: italic; overflow-wrap: break-word;">${place.description}</div>` : ''}
-              ${place.rating ? `<div style="font-size: 11px; color: #F59E0B; font-weight: 700; background: rgba(245, 158, 11, 0.1); padding: 2px 8px; border-radius: 12px; display: inline-block;">⭐ ${place.rating}</div>` : ''}
+            <td style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #E5E7EB; width: 50%; vertical-align: top;">
+              <div style="font-weight: bold; font-size: 12px; margin-bottom: 6px; color: #111827;">${place.name}</div>
+              ${cleanAddress ? `<div style="font-size: 10px; color: #6B7280; margin-bottom: 4px;">Location: ${cleanAddress}</div>` : ''}
+              ${place.description ? `<div style="font-size: 9px; color: #9CA3AF; margin-bottom: 4px; font-style: italic;">${place.description}</div>` : ''}
+              ${place.rating ? `<div style="font-size: 10px; color: #F59E0B; font-weight: bold;">Rating: ${place.rating}</div>` : ''}
             </td>
           `;
           
@@ -1081,82 +1080,82 @@ async function exportAsPDF() {
 
     if (totalPlaces > 0) {
       pdfContent += `
-        <div style="margin-top: 35px; padding: 30px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 12px; text-align: center; color: white; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);">
-          <div style="font-size: 24px; font-weight: 800; margin: 0 0 15px 0; letter-spacing: -0.5px; line-height: 1.3;">📊 Travel Summary</div>
-          <div style="width: 60px; height: 4px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto 20px auto; border-radius: 2px;"></div>
-          <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white;">
+          <div style="font-size: 20px; font-weight: bold; margin: 0 0 12px 0;">Travel Summary</div>
+          <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto 15px auto; border-radius: 2px;"></div>
+          <table style="width: 100%; margin-bottom: 15px; border-collapse: collapse;">
             <tr>
-              <td style="background: rgba(255,255,255,0.95); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); width: 50%; text-align: center; color: #111827; margin: 0 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <div style="font-size: 28px; font-weight: 800; margin-bottom: 6px; color: #6366F1; line-height: 1.2;">${totalPlaces}</div>
-                <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3;">Total Places</div>
+              <td style="background: white; padding: 12px; border-radius: 6px; width: 50%; text-align: center; color: #111827;">
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px; color: #6366F1;">${totalPlaces}</div>
+                <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Total Places</div>
               </td>
-              <td style="background: rgba(255,255,255,0.95); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); width: 50%; text-align: center; color: #111827; margin: 0 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-                <div style="font-size: 28px; font-weight: 800; margin-bottom: 6px; color: #6366F1; line-height: 1.2;">${categories.filter(cat => (grouped[cat]?.length || 0) > 0).length}</div>
-                <div style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3;">Categories</div>
+              <td style="background: white; padding: 12px; border-radius: 6px; width: 50%; text-align: center; color: #111827;">
+                <div style="font-size: 24px; font-weight: bold; margin-bottom: 4px; color: #6366F1;">${categories.filter(cat => (grouped[cat]?.length || 0) > 0).length}</div>
+                <div style="font-size: 11px; font-weight: bold; text-transform: uppercase;">Categories</div>
               </td>
             </tr>
           </table>
-          <div style="font-size: 16px; font-weight: 700; opacity: 0.9; line-height: 1.4;">🚀 Ready for your adventure!</div>
+          <div style="font-size: 14px; font-weight: bold; opacity: 0.9;">Ready for your adventure!</div>
         </div>
       `;
     } else {
       pdfContent += `
-        <div style="margin-top: 35px; padding: 30px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 12px; text-align: center; color: white; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);">
-          <div style="font-size: 20px; font-weight: 700; margin-bottom: 10px; letter-spacing: -0.3px; line-height: 1.3;">🎯 No places selected yet</div>
-          <div style="font-size: 14px; opacity: 0.9; line-height: 1.4;">Start adding places to create your perfect travel guide!</div>
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white;">
+          <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">No places selected yet</div>
+          <div style="font-size: 12px; opacity: 0.9;">Start adding places to create your perfect travel guide!</div>
         </div>
       `;
     }
 
-    // Route Optimization Section - Moved to bottom with website colors
+    // Route Optimization Section - Basit tasarım
     console.log('PDF Generation - routeResults.value:', routeResults.value);
     console.log('PDF Generation - routeResults.value?.success:', routeResults.value?.success);
     
     pdfContent += `
-      <div style="margin-top: 35px; padding: 25px; background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); border-radius: 12px; color: white; box-shadow: 0 8px 32px rgba(244, 114, 182, 0.3);">
-        <div style="text-align: center; margin-bottom: 25px;">
-          <div style="font-size: 22px; font-weight: 800; margin: 0 0 10px 0; letter-spacing: -0.5px; line-height: 1.3;">🚗 Route Optimization</div>
-          <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto;"></div>
+      <div style="margin-top: 25px; padding: 20px; background: #F472B6; border-radius: 8px; color: white;">
+        <div style="text-align: center; margin-bottom: 20px;">
+          <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0;">Route Optimization</div>
+          <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
         </div>
     `;
     
     if (routeResults.value && routeResults.value.success) {
       console.log('PDF Generation - Adding route optimization content');
       pdfContent += `
-        <table style="width: 100%; margin-bottom: 25px; border-collapse: collapse;">
+        <table style="width: 100%; margin-bottom: 20px; border-collapse: collapse;">
           <tr>
-            <td style="text-align: center; padding: 15px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); width: 25%; color: #111827; margin: 0 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3;">Total Distance</div>
-              <div style="font-size: 18px; font-weight: 800; color: #F472B6; line-height: 1.2;">${routeResults.value.distance} km</div>
+            <td style="text-align: center; padding: 10px; background: white; border-radius: 6px; width: 25%; color: #111827;">
+              <div style="font-size: 10px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase;">Total Distance</div>
+              <div style="font-size: 16px; font-weight: bold; color: #F472B6;">${routeResults.value.distance} km</div>
             </td>
-            <td style="text-align: center; padding: 15px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); width: 25%; color: #111827; margin: 0 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3;">Estimated Time</div>
-              <div style="font-size: 18px; font-weight: 800; color: #F472B6; line-height: 1.2;">${routeResults.value.duration} min</div>
+            <td style="text-align: center; padding: 10px; background: white; border-radius: 6px; width: 25%; color: #111827;">
+              <div style="font-size: 10px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase;">Estimated Time</div>
+              <div style="font-size: 16px; font-weight: bold; color: #F472B6;">${routeResults.value.duration} min</div>
             </td>
-            <td style="text-align: center; padding: 15px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); width: 25%; color: #111827; margin: 0 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3;">Number of Stops</div>
-              <div style="font-size: 18px; font-weight: 800; color: #F472B6; line-height: 1.2;">${routeResults.value.stops} places</div>
+            <td style="text-align: center; padding: 10px; background: white; border-radius: 6px; width: 25%; color: #111827;">
+              <div style="font-size: 10px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase;">Number of Stops</div>
+              <div style="font-size: 16px; font-weight: bold; color: #F472B6;">${routeResults.value.stops} places</div>
             </td>
-            <td style="text-align: center; padding: 15px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); width: 25%; color: #111827; margin: 0 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 11px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.3;">Transport Type</div>
-              <div style="font-size: 18px; font-weight: 800; color: #F472B6; line-height: 1.2;">${getTransportType(routeResults.value.profile)}</div>
+            <td style="text-align: center; padding: 10px; background: white; border-radius: 6px; width: 25%; color: #111827;">
+              <div style="font-size: 10px; font-weight: bold; margin-bottom: 6px; text-transform: uppercase;">Transport Type</div>
+              <div style="font-size: 16px; font-weight: bold; color: #F472B6;">${getTransportType(routeResults.value.profile)}</div>
             </td>
           </tr>
         </table>
-        <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2);">
-          <div style="font-size: 18px; font-weight: 700; margin: 0 0 15px 0; text-align: center; color: white; line-height: 1.3;">🗺️ Optimized Route Order</div>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 6px;">
+          <div style="font-size: 16px; font-weight: bold; margin: 0 0 12px 0; text-align: center; color: white;">Optimized Route Order</div>
           <table style="width: 100%; border-collapse: collapse;">
       `;
 
               routeResults.value.optimizedPlaces.forEach((place, index) => {
           pdfContent += `
             <tr>
-              <td style="padding: 12px; background: rgba(255,255,255,0.95); border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); vertical-align: middle; width: 50px; margin: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <span style="background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); color: white; width: 28px; height: 28px; border-radius: 50%; display: inline-block; text-align: center; line-height: 28px; font-weight: 800; font-size: 13px; box-shadow: 0 2px 8px rgba(244, 114, 182, 0.3);">${index + 1}</span>
+              <td style="padding: 8px; background: white; border-radius: 6px; vertical-align: middle; width: 40px;">
+                <span style="background: #F472B6; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-block; text-align: center; line-height: 24px; font-weight: bold; font-size: 11px;">${index + 1}</span>
               </td>
-              <td style="padding: 12px; background: rgba(255,255,255,0.95); border-radius: 8px; border: 1px solid rgba(255,255,255,0.3); vertical-align: middle; color: #111827; margin: 2px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
-                <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px; line-height: 1.3;">${place.name}</div>
-                <div style="font-size: 11px; text-transform: capitalize; font-weight: 600; color: #F472B6; background: rgba(244, 114, 182, 0.1); padding: 2px 8px; border-radius: 12px; display: inline-block;">${place.category}</div>
+              <td style="padding: 8px; background: white; border-radius: 6px; vertical-align: middle; color: #111827;">
+                <div style="font-weight: bold; font-size: 12px; margin-bottom: 3px;">${place.name}</div>
+                <div style="font-size: 10px; text-transform: capitalize; font-weight: bold; color: #F472B6;">${place.category}</div>
               </td>
             </tr>
         `;
@@ -1177,16 +1176,16 @@ async function exportAsPDF() {
         const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
         if (placesWithCoords.length >= 2) {
           pdfContent += `
-            <div style="text-align: center; padding: 25px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); color: #2d3748; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">⏳ Route optimization is being calculated...</div>
-              <div style="font-size: 13px; opacity: 0.8;">Please wait while we generate the optimal route for your ${placesWithCoords.length} places.</div>
+            <div style="text-align: center; padding: 20px; background: white; border-radius: 6px; color: #111827;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Route optimization is being calculated...</div>
+              <div style="font-size: 11px; opacity: 0.8;">Please wait while we generate the optimal route for your ${placesWithCoords.length} places.</div>
             </div>
           `;
         } else {
           pdfContent += `
-            <div style="text-align: center; padding: 25px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 1px solid rgba(255,255,255,0.3); color: #2d3748; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">⚠️ Route optimization not available</div>
-              <div style="font-size: 13px; opacity: 0.8;">At least 2 places with coordinates are needed for route optimization.</div>
+            <div style="text-align: center; padding: 20px; background: white; border-radius: 6px; color: #111827;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Route optimization not available</div>
+              <div style="font-size: 11px; opacity: 0.8;">At least 2 places with coordinates are needed for route optimization.</div>
             </div>
           `;
         }
@@ -1226,26 +1225,26 @@ async function exportAsPDF() {
         mapImageData = canvas.toDataURL('image/png', 0.95);
         
         pdfContent += `
-          <div style="margin-top: 35px; padding: 25px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 12px; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <div style="font-size: 22px; font-weight: 800; margin: 0 0 10px 0; color: white; letter-spacing: -0.5px; line-height: 1.3;">🗺️ Interactive Map</div>
-              <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto;"></div>
+          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
+              <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
             </div>
-            <div style="text-align: center; background: rgba(255,255,255,0.95); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid #E5E7EB;" alt="Map View" />
+            <div style="text-align: center; background: white; border-radius: 6px; padding: 15px;">
+              <img src="${mapImageData}" style="max-width: 100%; height: auto; border-radius: 6px; border: 1px solid #E5E7EB;" alt="Map View" />
             </div>
           </div>
         `;
       } else {
         pdfContent += `
-          <div style="margin-top: 35px; padding: 25px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 12px; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);">
-            <div style="text-align: center; margin-bottom: 25px;">
-              <div style="font-size: 22px; font-weight: 800; margin: 0 0 10px 0; color: white; letter-spacing: -0.5px; line-height: 1.3;">🗺️ Interactive Map</div>
-              <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto;"></div>
+          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px;">
+            <div style="text-align: center; margin-bottom: 20px;">
+              <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
+              <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
             </div>
-            <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 2px dashed rgba(99, 102, 241, 0.3); color: #111827; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-              <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.3;">🗺️ Map not available for capture</div>
-              <div style="font-size: 13px; opacity: 0.8; line-height: 1.4;">The map view could not be captured at this time</div>
+            <div style="text-align: center; padding: 25px; background: white; border-radius: 6px; border: 2px dashed #6366F1; color: #111827;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Map not available for capture</div>
+              <div style="font-size: 11px; opacity: 0.8;">The map view could not be captured at this time</div>
             </div>
           </div>
         `;
@@ -1253,26 +1252,26 @@ async function exportAsPDF() {
     } catch (mapErr) {
       console.log('Map capture not available:', mapErr);
       pdfContent += `
-        <div style="margin-top: 35px; padding: 25px; background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); border-radius: 12px; box-shadow: 0 8px 32px rgba(99, 102, 241, 0.3);">
-          <div style="text-align: center; margin-bottom: 25px;">
-            <div style="font-size: 22px; font-weight: 800; margin: 0 0 10px 0; color: white; letter-spacing: -0.5px; line-height: 1.3;">🗺️ Interactive Map</div>
-            <div style="width: 50px; height: 3px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto;"></div>
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px;">
+          <div style="text-align: center; margin-bottom: 20px;">
+            <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
+            <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
           </div>
-          <div style="text-align: center; padding: 30px; background: rgba(255,255,255,0.95); border-radius: 10px; border: 2px dashed rgba(99, 102, 241, 0.3); color: #111827; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <div style="font-size: 16px; font-weight: 700; margin-bottom: 8px; line-height: 1.3;">⚠️ Map capture failed</div>
-            <div style="font-size: 13px; opacity: 0.8; line-height: 1.4;">There was an error capturing the map view</div>
+          <div style="text-align: center; padding: 25px; background: white; border-radius: 6px; border: 2px dashed #6366F1; color: #111827;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 6px;">Map capture failed</div>
+            <div style="font-size: 11px; opacity: 0.8;">There was an error capturing the map view</div>
           </div>
         </div>
       `;
     }
 
-    // Modern footer design with website colors
+    // Basit footer tasarımı
     pdfContent += `
-      <div style="margin-top: 35px; text-align: center; padding: 25px; background: linear-gradient(135deg, #111827 0%, #374151 100%); border-radius: 12px; color: white; box-shadow: 0 8px 32px rgba(17, 24, 39, 0.3);">
-        <div style="font-size: 18px; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.3px; line-height: 1.3;">🗺️ Where Have I Been</div>
-        <div style="font-size: 14px; margin-bottom: 15px; opacity: 0.9; font-weight: 500; line-height: 1.4;">Your Personal Travel Companion</div>
-        <div style="width: 40px; height: 3px; background: linear-gradient(90deg, #ffffff 0%, rgba(255,255,255,0.6) 100%); margin: 0 auto 15px auto; border-radius: 2px;"></div>
-        <div style="font-size: 11px; font-weight: 600; opacity: 0.8; line-height: 1.4;">Generated on ${new Date().toLocaleDateString('en-US', { 
+      <div style="margin-top: 25px; text-align: center; padding: 20px; background: #111827; border-radius: 8px; color: white;">
+        <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Where Have I Been</div>
+        <div style="font-size: 12px; margin-bottom: 12px; opacity: 0.9;">Your Personal Travel Companion</div>
+        <div style="width: 30px; height: 3px; background: #ffffff; margin: 0 auto 12px auto; border-radius: 2px;"></div>
+        <div style="font-size: 10px; font-weight: bold; opacity: 0.8;">Generated on ${new Date().toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'long', 
           day: 'numeric',
