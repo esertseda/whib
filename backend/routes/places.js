@@ -25,6 +25,28 @@ router.get('/', auth, async (req, res) => {
   }
 });
 
+// Debug endpoint to check photo URLs
+router.get('/debug-photos', auth, async (req, res) => {
+  try {
+    const places = await Place.find({ userId: req.userId, photoUrl: { $exists: true, $ne: '' } });
+    const photoInfo = places.map(place => ({
+      id: place._id,
+      title: place.title,
+      photoUrl: place.photoUrl,
+      isCloudinary: place.photoUrl && (place.photoUrl.startsWith('http://') || place.photoUrl.startsWith('https://')),
+      isLocal: place.photoUrl && place.photoUrl.startsWith('/uploads/')
+    }));
+    
+    res.json({
+      totalPlaces: places.length,
+      placesWithPhotos: photoInfo,
+      cloudinaryConfigured: !!(process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY && process.env.CLOUDINARY_API_SECRET)
+    });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // Add a new place
 router.post('/', auth, upload.single('photo'), async (req, res) => {
   try {
@@ -147,39 +169,70 @@ router.post('/migrate-to-cloudinary', auth, async (req, res) => {
   try {
     const places = await Place.find({ userId: req.userId, photoUrl: { $exists: true, $ne: '' } });
     let migratedCount = 0;
+    let skippedCount = 0;
     
     for (const place of places) {
-      if (place.photoUrl && place.photoUrl.startsWith('https://whib.onrender.com/uploads/')) {
-        // Extract filename from URL
-        const filename = place.photoUrl.split('/').pop();
+      // Skip if already Cloudinary URL
+      if (place.photoUrl && (place.photoUrl.startsWith('http://') || place.photoUrl.startsWith('https://'))) {
+        if (!place.photoUrl.includes('cloudinary.com')) {
+          // Convert local production URLs to Cloudinary
+          const filename = place.photoUrl.split('/').pop();
+          const localPath = `./uploads/${filename}`;
+          
+          try {
+            const { v2: cloudinary } = await import('cloudinary');
+            const result = await cloudinary.uploader.upload(localPath, {
+              folder: 'whib-uploads'
+            });
+            
+            await Place.updateOne(
+              { _id: place._id },
+              { $set: { photoUrl: result.secure_url } }
+            );
+            
+            migratedCount++;
+            console.log(`Migrated ${place.title}: ${place.photoUrl} -> ${result.secure_url}`);
+          } catch (uploadError) {
+            console.error(`Failed to upload ${filename}:`, uploadError);
+          }
+        } else {
+          skippedCount++;
+        }
+      } else if (place.photoUrl && place.photoUrl.startsWith('/uploads/')) {
+        // Convert local paths to Cloudinary
+        const filename = place.photoUrl.replace('/uploads/', '');
         const localPath = `./uploads/${filename}`;
         
         try {
-          // Upload to Cloudinary
-          const cloudinary = require('cloudinary').v2;
+          const { v2: cloudinary } = await import('cloudinary');
           const result = await cloudinary.uploader.upload(localPath, {
             folder: 'whib-uploads'
           });
           
-          // Update place with Cloudinary URL
           await Place.updateOne(
             { _id: place._id },
             { $set: { photoUrl: result.secure_url } }
           );
           
           migratedCount++;
+          console.log(`Migrated ${place.title}: ${place.photoUrl} -> ${result.secure_url}`);
         } catch (uploadError) {
           console.error(`Failed to upload ${filename}:`, uploadError);
         }
+      } else {
+        skippedCount++;
       }
     }
     
     res.json({ 
-      message: `Migrated ${migratedCount} photos to Cloudinary`,
-      migratedCount 
+      message: `Migration completed: ${migratedCount} migrated, ${skippedCount} skipped`,
+      migratedCount,
+      skippedCount,
+      totalPlaces: places.length
     });
   } catch (err) {
-    res.status(500).json({ message: 'Server error' });
+    console.error('Migration error:', err);
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 
