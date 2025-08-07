@@ -976,6 +976,9 @@ async function exportAsPDF() {
       background: #ffffff;
       font-size: 11px;
       line-height: 1.4;
+      page-break-inside: auto;
+      orphans: 2;
+      widows: 2;
     `;
 
     // Debug: Log city data
@@ -1038,12 +1041,12 @@ async function exportAsPDF() {
       if (places.length > 0) {
         totalPlaces += places.length;
         pdfContent += `
-          <div style="margin-bottom: 25px; padding: 20px; background: ${categoryColors[category]}; border-radius: 8px;">
+          <div style="margin-bottom: 25px; padding: 20px; background: ${categoryColors[category]}; border-radius: 8px; page-break-inside: avoid;">
             <div style="text-align: center; margin-bottom: 15px;">
-              <div style="font-size: 18px; font-weight: bold; margin: 0 0 6px 0; color: white;">${categoryIcons[category]} ${categoryNames[category]}</div>
+              <div style="font-size: 18px; font-weight: bold; margin: 0 0 6px 0; color: white;">${categoryNames[category]}</div>
               <div style="font-size: 12px; color: white; font-weight: bold; background: rgba(255,255,255,0.2); padding: 3px 10px; border-radius: 15px; display: inline-block;">${places.length} places</div>
             </div>
-            <table style="width: 100%; border-collapse: collapse;">
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
         `;
 
         places.forEach((place, index) => {
@@ -1053,26 +1056,18 @@ async function exportAsPDF() {
             cleanAddress = cleanAddress.substring(2);
           }
           
-          if (index % 2 === 0) {
-            pdfContent += '<tr>';
-          }
-          
           pdfContent += `
-            <td style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #E5E7EB; width: 50%; vertical-align: top;">
+            <div style="background: white; padding: 12px; border-radius: 6px; border: 1px solid #E5E7EB; width: calc(50% - 5px); box-sizing: border-box; page-break-inside: avoid;">
               <div style="font-weight: bold; font-size: 12px; margin-bottom: 6px; color: #111827;">${place.name}</div>
               ${cleanAddress ? `<div style="font-size: 10px; color: #6B7280; margin-bottom: 4px;">Location: ${cleanAddress}</div>` : ''}
               ${place.description ? `<div style="font-size: 9px; color: #9CA3AF; margin-bottom: 4px; font-style: italic;">${place.description}</div>` : ''}
               ${place.rating ? `<div style="font-size: 10px; color: #F59E0B; font-weight: bold;">Rating: ${place.rating}</div>` : ''}
-            </td>
+            </div>
           `;
-          
-          if (index % 2 === 1 || index === places.length - 1) {
-            pdfContent += '</tr>';
-          }
         });
 
         pdfContent += `
-            </table>
+            </div>
           </div>
         `;
       }
@@ -1080,7 +1075,7 @@ async function exportAsPDF() {
 
     if (totalPlaces > 0) {
       pdfContent += `
-        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white;">
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white; page-break-inside: avoid;">
           <div style="font-size: 20px; font-weight: bold; margin: 0 0 12px 0;">Travel Summary</div>
           <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto 15px auto; border-radius: 2px;"></div>
           <table style="width: 100%; margin-bottom: 15px; border-collapse: collapse;">
@@ -1100,7 +1095,7 @@ async function exportAsPDF() {
       `;
     } else {
       pdfContent += `
-        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white;">
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; text-align: center; color: white; page-break-inside: avoid;">
           <div style="font-size: 18px; font-weight: bold; margin-bottom: 8px;">No places selected yet</div>
           <div style="font-size: 12px; opacity: 0.9;">Start adding places to create your perfect travel guide!</div>
         </div>
@@ -1112,7 +1107,7 @@ async function exportAsPDF() {
     console.log('PDF Generation - routeResults.value?.success:', routeResults.value?.success);
     
     pdfContent += `
-      <div style="margin-top: 25px; padding: 20px; background: #F472B6; border-radius: 8px; color: white;">
+      <div style="margin-top: 25px; padding: 20px; background: #F472B6; border-radius: 8px; color: white; page-break-inside: avoid;">
         <div style="text-align: center; margin-bottom: 20px;">
           <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0;">Route Optimization</div>
           <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
@@ -1200,32 +1195,35 @@ async function exportAsPDF() {
     try {
       const mapElement = document.querySelector('#map');
       if (mapElement && mapElement.offsetWidth > 0) {
-        // Wait a bit longer to ensure map and route are fully rendered
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait longer to ensure map and route are fully rendered
+        await new Promise(resolve => setTimeout(resolve, 2000));
         
         // Force map to invalidate and redraw to ensure route is visible
         const mapInstance = mapElement._leaflet_map;
         if (mapInstance) {
           mapInstance.invalidateSize();
-          await new Promise(resolve => setTimeout(resolve, 500));
+          mapInstance.fitBounds(mapInstance.getBounds());
+          await new Promise(resolve => setTimeout(resolve, 1000));
         }
         
-        // Capture map as image with higher quality
+        // Capture map as image with higher quality and better settings
         const canvas = await html2canvas(mapElement, {
-          scale: 2, // Higher scale for better quality
+          scale: 1.5, // Balanced scale for quality and performance
           useCORS: true,
           allowTaint: true,
           backgroundColor: '#ffffff',
           width: mapElement.offsetWidth,
           height: mapElement.offsetHeight,
           logging: false,
-          removeContainer: false
+          removeContainer: false,
+          foreignObjectRendering: false,
+          imageTimeout: 5000
         });
         
         mapImageData = canvas.toDataURL('image/png', 0.95);
         
         pdfContent += `
-          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px;">
+          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
             <div style="text-align: center; margin-bottom: 20px;">
               <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
               <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
@@ -1237,7 +1235,7 @@ async function exportAsPDF() {
         `;
       } else {
         pdfContent += `
-          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px;">
+          <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
             <div style="text-align: center; margin-bottom: 20px;">
               <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
               <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
@@ -1252,7 +1250,7 @@ async function exportAsPDF() {
     } catch (mapErr) {
       console.log('Map capture not available:', mapErr);
       pdfContent += `
-        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px;">
+        <div style="margin-top: 25px; padding: 20px; background: #6366F1; border-radius: 8px; page-break-inside: avoid;">
           <div style="text-align: center; margin-bottom: 20px;">
             <div style="font-size: 18px; font-weight: bold; margin: 0 0 8px 0; color: white;">Interactive Map</div>
             <div style="width: 40px; height: 3px; background: #ffffff; margin: 0 auto;"></div>
@@ -1267,7 +1265,7 @@ async function exportAsPDF() {
 
     // Basit footer tasarımı
     pdfContent += `
-      <div style="margin-top: 25px; text-align: center; padding: 20px; background: #111827; border-radius: 8px; color: white;">
+      <div style="margin-top: 25px; text-align: center; padding: 20px; background: #111827; border-radius: 8px; color: white; page-break-inside: avoid;">
         <div style="font-size: 16px; font-weight: bold; margin-bottom: 8px;">Where Have I Been</div>
         <div style="font-size: 12px; margin-bottom: 12px; opacity: 0.9;">Your Personal Travel Companion</div>
         <div style="width: 30px; height: 3px; background: #ffffff; margin: 0 auto 12px auto; border-radius: 2px;"></div>
@@ -1295,7 +1293,7 @@ async function exportAsPDF() {
         pdf.save(`${city.name}-travel-list.pdf`);
         document.body.removeChild(tempContainer);
       },
-      margin: [30, 30, 30, 30],
+      margin: [40, 40, 40, 40],
       autoPaging: 'text',
       html2canvas: { 
         scale: 1, 
@@ -1304,7 +1302,8 @@ async function exportAsPDF() {
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        removeContainer: false
+        removeContainer: false,
+        foreignObjectRendering: false
       }
     });
 
