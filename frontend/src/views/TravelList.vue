@@ -545,6 +545,15 @@ async function selectCity(city) {
   selectedCity.value = city;
   // Load places for map
   mapPlaces.value = await getPlacesForMap();
+  
+  // Auto-run route optimization if we have enough places
+  const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
+  if (placesWithCoords.length >= 2) {
+    console.log('Auto-running route optimization for selected city');
+    setTimeout(() => {
+      runRouteOptimization();
+    }, 1000); // Small delay to ensure map is loaded
+  }
 }
 
 function backToCities() {
@@ -583,26 +592,35 @@ async function runRouteOptimization() {
   try {
     // Get places with coordinates
     const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
+    console.log('Places with coordinates for optimization:', placesWithCoords);
     
     if (placesWithCoords.length < 2) {
       console.log('Not enough places with coordinates for route optimization');
+      routeResults.value = {
+        success: false,
+        error: 'At least 2 places with coordinates are needed for route optimization.'
+      };
       return;
     }
 
     // Use nearest neighbor algorithm to optimize route
     const optimizedPlaces = nearestNeighborOptimization(placesWithCoords);
+    console.log('Optimized places order:', optimizedPlaces.map(p => p.name));
     
     // Create waypoints string for OSRM
     const waypoints = optimizedPlaces.map(place => `${place.lng},${place.lat}`).join(';');
+    console.log('OSRM waypoints:', waypoints);
     
     // Get route from OSRM (using driving profile as default)
     const profile = 'driving';
-    const response = await fetch(
-      `https://router.project-osrm.org/route/v1/${profile}/${waypoints}?overview=full&geometries=geojson`
-    );
+    const osrmUrl = `https://router.project-osrm.org/route/v1/${profile}/${waypoints}?overview=full&geometries=geojson`;
+    console.log('OSRM URL:', osrmUrl);
+    
+    const response = await fetch(osrmUrl);
 
     if (response.ok) {
       const data = await response.json();
+      console.log('OSRM response:', data);
       
       if (data.routes && data.routes.length > 0) {
         const route = data.routes[0];
@@ -623,15 +641,19 @@ async function runRouteOptimization() {
         };
         
         console.log('Route optimization completed successfully:', routeResults.value);
+      } else {
+        throw new Error('No routes returned from OSRM');
       }
     } else {
-      throw new Error('Route calculation failed');
+      const errorText = await response.text();
+      console.error('OSRM API error:', response.status, errorText);
+      throw new Error(`Route calculation failed: ${response.status}`);
     }
   } catch (error) {
     console.error('Route optimization error:', error);
     routeResults.value = {
       success: false,
-      error: 'An error occurred while creating the route. Please try again.'
+      error: `An error occurred while creating the route: ${error.message}`
     };
   }
 }
@@ -899,6 +921,8 @@ async function exportAsPDF() {
       
       // Check if we have enough places for route optimization
       const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
+      console.log('PDF Generation - Places with coordinates:', placesWithCoords.length);
+      
       if (placesWithCoords.length >= 2) {
         try {
           // Show loading message to user
@@ -921,6 +945,10 @@ async function exportAsPDF() {
           // Run route optimization automatically
           await runRouteOptimization();
           console.log('PDF Generation - Route optimization completed automatically');
+          console.log('PDF Generation - routeResults after optimization:', routeResults.value);
+          
+          // Wait a bit more to ensure routeResults is properly set
+          await new Promise(resolve => setTimeout(resolve, 500));
           
           // Remove loading message
           document.body.removeChild(loadingMessage);
@@ -934,6 +962,7 @@ async function exportAsPDF() {
         }
       } else {
         console.log('PDF Generation - Not enough places with coordinates for route optimization');
+        console.log('PDF Generation - mapPlaces.value:', mapPlaces.value);
       }
     }
 
@@ -958,36 +987,39 @@ async function exportAsPDF() {
       </div>
     `;
 
-    // Route Optimization Section (if available)
+    // Route Optimization Section (always show, with content or placeholder)
     console.log('PDF Generation - routeResults.value:', routeResults.value);
     console.log('PDF Generation - routeResults.value?.success:', routeResults.value?.success);
     
+    pdfContent += `
+      <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
+        <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Route Optimization Results</h3>
+    `;
+    
     if (routeResults.value && routeResults.value.success) {
-      console.log('PDF Generation - Adding route optimization section');
+      console.log('PDF Generation - Adding route optimization content');
       pdfContent += `
-        <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
-          <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Route Optimization Results</h3>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Total Distance</div>
-              <div style="font-size: 16px;">${routeResults.value.distance} km</div>
-            </div>
-            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Estimated Time</div>
-              <div style="font-size: 16px;">${routeResults.value.duration} minutes</div>
-            </div>
-            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Number of Stops</div>
-              <div style="font-size: 16px;">${routeResults.value.stops} places</div>
-            </div>
-            <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Transport Type</div>
-              <div style="font-size: 16px;">${getTransportType(routeResults.value.profile)}</div>
-            </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Total Distance</div>
+            <div style="font-size: 16px;">${routeResults.value.distance} km</div>
           </div>
-          <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
-            <h4 style="font-size: 16px; margin: 0 0 10px 0; font-family: 'Arial', 'Helvetica', sans-serif;">Optimized Route Order:</h4>
-            <div style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Estimated Time</div>
+            <div style="font-size: 16px;">${routeResults.value.duration} minutes</div>
+          </div>
+          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Number of Stops</div>
+            <div style="font-size: 16px;">${routeResults.value.stops} places</div>
+          </div>
+          <div style="text-align: center; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <div style="font-size: 14px; font-weight: bold; margin-bottom: 5px;">Transport Type</div>
+            <div style="font-size: 16px;">${getTransportType(routeResults.value.profile)}</div>
+          </div>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px;">
+          <h4 style="font-size: 16px; margin: 0 0 10px 0; font-family: 'Arial', 'Helvetica', sans-serif;">Optimized Route Order:</h4>
+          <div style="display: flex; flex-direction: column; gap: 8px;">
       `;
 
       routeResults.value.optimizedPlaces.forEach((place, index) => {
@@ -1001,17 +1033,38 @@ async function exportAsPDF() {
       });
 
       pdfContent += `
-            </div>
           </div>
         </div>
       `;
     } else {
-      console.log('PDF Generation - Route optimization section NOT added because:', {
+      console.log('PDF Generation - Route optimization section added with placeholder because:', {
         routeResultsExists: !!routeResults.value,
         routeResultsSuccess: routeResults.value?.success,
         routeResultsValue: routeResults.value
       });
+      
+      // Show placeholder content
+      const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
+      if (placesWithCoords.length >= 2) {
+        pdfContent += `
+          <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <p style="font-size: 14px; margin: 0;">Route optimization is being calculated...</p>
+            <p style="font-size: 12px; margin: 10px 0 0 0; opacity: 0.8;">Please wait while we generate the optimal route for your ${placesWithCoords.length} places.</p>
+          </div>
+        `;
+      } else {
+        pdfContent += `
+          <div style="text-align: center; padding: 20px; background: rgba(255,255,255,0.1); border-radius: 8px;">
+            <p style="font-size: 14px; margin: 0;">Route optimization not available</p>
+            <p style="font-size: 12px; margin: 10px 0 0 0; opacity: 0.8;">At least 2 places with coordinates are needed for route optimization.</p>
+          </div>
+        `;
+      }
     }
+    
+    pdfContent += `
+      </div>
+    `;
 
     // Map Image Section
     let mapImageData = null;
