@@ -2,7 +2,7 @@
   <div class="home-root">
     <header class="home-header">
       <div class="header-content container">
-        <img src="/src/assets/Where Have I Been.png" alt="My Travel Map Logo" class="logo" />
+        <img src="/Where Have I Been.png" alt="My Travel Map Logo" class="logo" />
         <h1 class="app-title">Where Have I Been?</h1>
       </div>
     </header>

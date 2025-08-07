@@ -1,7 +1,7 @@
 <template>
   <nav class="navbar">
     <div class="navbar-left">
-      <img src="/src/assets/Where Have I Been.png" alt="Logo" class="navbar-logo" />
+      <img src="/Where Have I Been.png" alt="Logo" class="navbar-logo" />
       <span class="navbar-title">Where Have I Been?</span>
     </div>
     <button class="navbar-toggle" @click="toggleMenu" aria-label="Toggle navigation">

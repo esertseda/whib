@@ -2,7 +2,7 @@
   <div class="dashboard-root">
     <header class="dashboard-header">
       <div class="header-content">
-        <img src="/src/assets/Where Have I Been.png" alt="My Travel Map Logo" class="logo" />
+        <img src="/Where Have I Been.png" alt="My Travel Map Logo" class="logo" />
         <h1 class="app-title">My Travel Map</h1>
       </div>
     </header>

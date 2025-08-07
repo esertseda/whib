@@ -572,7 +572,118 @@ function clearAllSelections() {
 }
 
 function handleRouteOptimized(results) {
+  console.log('handleRouteOptimized called with:', results);
   routeResults.value = results;
+  console.log('routeResults.value after setting:', routeResults.value);
+}
+
+async function runRouteOptimization() {
+  console.log('Running route optimization automatically');
+  
+  try {
+    // Get places with coordinates
+    const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
+    
+    if (placesWithCoords.length < 2) {
+      console.log('Not enough places with coordinates for route optimization');
+      return;
+    }
+
+    // Use nearest neighbor algorithm to optimize route
+    const optimizedPlaces = nearestNeighborOptimization(placesWithCoords);
+    
+    // Create waypoints string for OSRM
+    const waypoints = optimizedPlaces.map(place => `${place.lng},${place.lat}`).join(';');
+    
+    // Get route from OSRM (using driving profile as default)
+    const profile = 'driving';
+    const response = await fetch(
+      `https://router.project-osrm.org/route/v1/${profile}/${waypoints}?overview=full&geometries=geojson`
+    );
+
+    if (response.ok) {
+      const data = await response.json();
+      
+      if (data.routes && data.routes.length > 0) {
+        const route = data.routes[0];
+        
+        // Add route info
+        const distance = (route.distance / 1000).toFixed(2);
+        const duration = Math.round(route.duration / 60);
+        
+        // Set route results
+        routeResults.value = {
+          success: true,
+          distance: distance,
+          duration: duration,
+          stops: optimizedPlaces.length,
+          route: route,
+          optimizedPlaces: optimizedPlaces,
+          profile: profile
+        };
+        
+        console.log('Route optimization completed successfully:', routeResults.value);
+      }
+    } else {
+      throw new Error('Route calculation failed');
+    }
+  } catch (error) {
+    console.error('Route optimization error:', error);
+    routeResults.value = {
+      success: false,
+      error: 'An error occurred while creating the route. Please try again.'
+    };
+  }
+}
+
+// Nearest neighbor optimization algorithm
+function nearestNeighborOptimization(places) {
+  if (places.length <= 2) return places;
+
+  const optimized = [];
+  const unvisited = [...places];
+  
+  // Start with the first place
+  let current = unvisited.shift();
+  optimized.push(current);
+
+  while (unvisited.length > 0) {
+    // Find nearest neighbor
+    let nearest = unvisited[0];
+    let minDistance = haversineDistance(current, nearest);
+
+    for (const place of unvisited) {
+      const distance = haversineDistance(current, place);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearest = place;
+      }
+    }
+
+    // Remove nearest from unvisited and add to optimized
+    const nearestIndex = unvisited.indexOf(nearest);
+    unvisited.splice(nearestIndex, 1);
+    optimized.push(nearest);
+    current = nearest;
+  }
+
+  return optimized;
+}
+
+// Haversine distance calculation
+function haversineDistance(place1, place2) {
+  const R = 6371; // Earth's radius in kilometers
+  const lat1 = parseFloat(place1.lat) * Math.PI / 180;
+  const lat2 = parseFloat(place2.lat) * Math.PI / 180;
+  const deltaLat = (parseFloat(place2.lat) - parseFloat(place1.lat)) * Math.PI / 180;
+  const deltaLng = (parseFloat(place2.lng) - parseFloat(place1.lng)) * Math.PI / 180;
+
+  const a = Math.sin(deltaLat / 2) * Math.sin(deltaLat / 2) +
+    Math.cos(lat1) * Math.cos(lat2) *
+    Math.sin(deltaLng / 2) * Math.sin(deltaLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c;
 }
 
 function getTransportType(profile) {
@@ -782,6 +893,50 @@ async function exportAsPDF() {
       return;
     }
 
+    // If no route optimization has been done yet, run it automatically
+    if (!routeResults.value || !routeResults.value.success) {
+      console.log('PDF Generation - No route optimization found, running it automatically');
+      
+      // Check if we have enough places for route optimization
+      const placesWithCoords = mapPlaces.value.filter(place => place.lat && place.lng);
+      if (placesWithCoords.length >= 2) {
+        try {
+          // Show loading message to user
+          const loadingMessage = document.createElement('div');
+          loadingMessage.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            z-index: 10000;
+            font-family: Arial, sans-serif;
+          `;
+          loadingMessage.textContent = 'Generating route optimization for PDF...';
+          document.body.appendChild(loadingMessage);
+          
+          // Run route optimization automatically
+          await runRouteOptimization();
+          console.log('PDF Generation - Route optimization completed automatically');
+          
+          // Remove loading message
+          document.body.removeChild(loadingMessage);
+        } catch (error) {
+          console.log('PDF Generation - Automatic route optimization failed:', error);
+          // Remove loading message if it exists
+          const loadingMessage = document.querySelector('div[style*="position: fixed"]');
+          if (loadingMessage) {
+            document.body.removeChild(loadingMessage);
+          }
+        }
+      } else {
+        console.log('PDF Generation - Not enough places with coordinates for route optimization');
+      }
+    }
+
     // PDF için geçici container
     const tempContainer = document.createElement('div');
     tempContainer.style.cssText = `
@@ -804,7 +959,11 @@ async function exportAsPDF() {
     `;
 
     // Route Optimization Section (if available)
+    console.log('PDF Generation - routeResults.value:', routeResults.value);
+    console.log('PDF Generation - routeResults.value?.success:', routeResults.value?.success);
+    
     if (routeResults.value && routeResults.value.success) {
+      console.log('PDF Generation - Adding route optimization section');
       pdfContent += `
         <div style="margin-bottom: 30px; padding: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 10px; color: white;">
           <h3 style="font-size: 18px; margin: 0 0 15px 0; font-family: 'Arial', 'Helvetica', sans-serif; text-align: center;">Route Optimization Results</h3>
@@ -846,6 +1005,12 @@ async function exportAsPDF() {
           </div>
         </div>
       `;
+    } else {
+      console.log('PDF Generation - Route optimization section NOT added because:', {
+        routeResultsExists: !!routeResults.value,
+        routeResultsSuccess: routeResults.value?.success,
+        routeResultsValue: routeResults.value
+      });
     }
 
     // Map Image Section

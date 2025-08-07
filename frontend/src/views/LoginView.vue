@@ -14,7 +14,7 @@
       <div class="welcome-section">
         <div class="welcome-content">
           <div class="logo-container">
-            <img src="/src/assets/Where Have I Been.png" alt="Logo" class="auth-logo" />
+            <img src="/Where Have I Been.png" alt="Logo" class="auth-logo" />
             <h1 class="welcome-title">Where Have I Been?</h1>
           </div>
           <h2 class="welcome-subtitle">Welcome Back, Adventurer!</h2>
